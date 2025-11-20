@@ -410,38 +410,52 @@
                     <rect width="300" height="300" fill="url(#grid)" />
                     <rect y="250" width="300" height="50" fill="url(#floorGrad)" />
 
-                    <!-- Vector Mannequin Rig -->
+                    <!-- ANKF Standard Style Rig -->
                     <g id="archer-rig" transform="translate(150, 250)">
-                        <!-- LEGS -->
+                        <!-- LEGS: Ashibumi (Wide Stance, ~60 deg) -->
                         <g id="legs">
-                            <path d="M-10,-60 L-25,0 L-5,0 L5,-60 Z" fill="#1a1a1a" stroke="#000" stroke-width="1" />
-                            <path d="M-25,0 L-35,5 L-15,5 Z" fill="#fff" stroke="#ccc" stroke-width="1" />
-                            <path d="M10,-60 L25,0 L5,0 L-5,-60 Z" fill="#1a1a1a" stroke="#000" stroke-width="1" />
-                            <path d="M25,0 L35,5 L15,5 Z" fill="#fff" stroke="#ccc" stroke-width="1" />
-                            <path d="M-15,-90 L-20,-50 L20,-50 L15,-90 Z" fill="#1a1a1a" stroke="#000"
-                                stroke-width="1" />
+                            <!-- Hakama: Black, wide pleats -->
+                            <path d="M-15,-90 L-35,0 L-10,0 L-5,-60 Z" fill="#1a1a1a" stroke="#000" stroke-width="1.5"
+                                stroke-linejoin="round" />
+                            <path d="M15,-90 L35,0 L10,0 L5,-60 Z" fill="#1a1a1a" stroke="#000" stroke-width="1.5"
+                                stroke-linejoin="round" />
+                            <!-- Center Hakama Fold -->
+                            <path d="M-15,-90 L-5,-60 L5,-60 L15,-90 Z" fill="#1a1a1a" stroke="#000" stroke-width="1.5"
+                                stroke-linejoin="round" />
+                            <!-- Tabi (White Socks) -->
+                            <path d="M-35,0 L-42,5 L-15,5 L-10,0 Z" fill="#fff" stroke="#ccc" stroke-width="1" />
+                            <path d="M35,0 L42,5 L15,5 L10,0 Z" fill="#fff" stroke="#ccc" stroke-width="1" />
                         </g>
 
                         <!-- TORSO -->
                         <g id="torso-bones" transform="translate(0, -90)">
-                            <path d="M-18,0 L-22,-70 L22,-70 L18,0 Z" fill="#ffffff" stroke="#ccc" stroke-width="1" />
-                            <path d="M-22,-70 L0,-85 L22,-70" fill="none" stroke="#ddd" stroke-width="1" />
+                            <!-- Gi: White, clean lines -->
+                            <path d="M-20,0 L-24,-75 L24,-75 L20,0 Z" fill="#fff" stroke="#ccc" stroke-width="1.5"
+                                stroke-linejoin="round" />
+                            <!-- Collar (Eri) -->
+                            <path d="M-24,-75 L0,-88 L24,-75" fill="none" stroke="#ccc" stroke-width="1" />
 
                             <!-- HEAD -->
-                            <g id="head-grp" transform="translate(0, -80)">
-                                <circle cx="0" cy="-5" r="12" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
-                                <path d="M-12,-10 Q0,-20 12,-10 L12,-5 Q0,-15 -12,-5 Z" fill="#111" />
-                                <path d="M12,-5 L16,-2 L12,1" fill="none" stroke="#dbb070" stroke-width="1" />
+                            <g id="head-grp" transform="translate(0, -82)">
+                                <circle cx="0" cy="-8" r="13" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
+                                <!-- Hair: Simple black bun/short hair -->
+                                <path d="M-13,-12 Q0,-25 13,-12 L13,-5 Q0,-15 -13,-5 Z" fill="#111" />
+                                <!-- Face Profile (Facing Target/Right) -->
+                                <path d="M13,-8 L16,-6 L13,-4" fill="none" stroke="#dbb070" stroke-width="1.5" />
                             </g>
 
                             <!-- LEFT ARM (Bow Hand) -->
-                            <g id="arm-l-grp" transform="translate(15, -65)">
-                                <path d="M0,0 L5,30 L-5,30 Z" fill="#ffffff" stroke="#ccc" stroke-width="1" />
-                                <g id="fore-l-grp" transform="translate(0, 30)">
-                                    <path d="M0,0 L4,25 L-4,25 Z" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
-                                    <circle cx="0" cy="28" r="5" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
+                            <g id="arm-l-grp" transform="translate(18, -68)">
+                                <!-- Upper Arm (Sleeve) -->
+                                <path d="M0,0 L8,32 L-8,32 Z" fill="#fff" stroke="#ccc" stroke-width="1.5"
+                                    stroke-linejoin="round" />
+                                <g id="fore-l-grp" transform="translate(0, 32)">
+                                    <!-- Forearm (Skin) -->
+                                    <path d="M0,0 L5,26 L-5,26 Z" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
+                                    <!-- Hand -->
+                                    <circle cx="0" cy="29" r="6" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
                                     <!-- BOW ANCHOR -->
-                                    <g id="bow-grp" transform="translate(0, 28)">
+                                    <g id="bow-grp" transform="translate(0, 29)">
                                         <path id="anim-bow" d="M0,-130 Q0,0 0,80" fill="none" stroke="#d2691e"
                                             stroke-width="4" stroke-linecap="round" />
                                     </g>
@@ -449,11 +463,15 @@
                             </g>
 
                             <!-- RIGHT ARM (Draw Hand) -->
-                            <g id="arm-r-grp" transform="translate(-15, -65)">
-                                <path d="M0,0 L5,30 L-5,30 Z" fill="#ffffff" stroke="#ccc" stroke-width="1" />
-                                <g id="fore-r-grp" transform="translate(0, 30)">
-                                    <path d="M0,0 L4,25 L-4,25 Z" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
-                                    <circle cx="0" cy="28" r="6" fill="#8d6e63" />
+                            <g id="arm-r-grp" transform="translate(-18, -68)">
+                                <!-- Upper Arm (Sleeve) -->
+                                <path d="M0,0 L8,32 L-8,32 Z" fill="#fff" stroke="#ccc" stroke-width="1.5"
+                                    stroke-linejoin="round" />
+                                <g id="fore-r-grp" transform="translate(0, 32)">
+                                    <!-- Forearm (Skin) -->
+                                    <path d="M0,0 L5,26 L-5,26 Z" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
+                                    <!-- Yugake (Glove) - Brown -->
+                                    <circle cx="0" cy="29" r="7" fill="#8d6e63" stroke="#5d4037" stroke-width="1" />
                                 </g>
                             </g>
 
@@ -644,14 +662,28 @@
         const SvgArcherEngine = {
             el: {}, state: 'INIT', stage: 0, progress: 0,
             poses: [
-                { la: -20, lf: 10, ra: 20, rf: -10, bt: 20, bb: 0, hx: 0 }, // Ashibumi
-                { la: -25, lf: 30, ra: 25, rf: -30, bt: 25, bb: 0, hx: 0 }, // Dozukuri
-                { la: -45, lf: 10, ra: 45, rf: -10, bt: 45, bb: 0, hx: 1 }, // Uchiokoshi
-                { la: -60, lf: 0, ra: 120, rf: 80, bt: 60, bb: 20, hx: 3 }, // Daisan
-                { la: -80, lf: 0, ra: 130, rf: 120, bt: 80, bb: 50, hx: 6 }, // Hikiwake
-                { la: -90, lf: 0, ra: 135, rf: 160, bt: 90, bb: 80, hx: 8 }, // Kai
-                { la: -100, lf: 10, ra: 160, rf: 170, bt: 100, bb: 0, hx: 8 }, // Hanare
-                { la: -100, lf: 10, ra: 160, rf: 170, bt: 100, bb: 0, hx: 8 }  // Zanshin
+                // ANKF Standard Angles (Approximate for 2D projection)
+                // la: Left Arm, lf: Left Forearm, ra: Right Arm, rf: Right Forearm
+                // bt: Bow Tilt, bb: Bow Bend, hx: Head X Offset
+
+                // 1. Ashibumi (Footing) - Arms down, relaxed
+                { la: -10, lf: 0, ra: 10, rf: 0, bt: 10, bb: 0, hx: 0 },
+                // 2. Dozukuri (Forming Torso) - Hands to hips/knees
+                { la: -15, lf: 15, ra: 15, rf: -15, bt: 15, bb: 0, hx: 0 },
+                // 3. Uchiokoshi (Raising) - 45 degrees exactly
+                { la: -45, lf: 0, ra: 45, rf: 0, bt: 45, bb: 0, hx: 0 },
+                // 4. Daisan (Big Three) - Left pushes, Right folds
+                // Left arm straightens towards target (~-60), Right elbow folds
+                { la: -60, lf: 0, ra: 100, rf: 90, bt: 60, bb: 20, hx: 2 },
+                // 5. Hikiwake (Drawing) - Expansion
+                { la: -80, lf: 0, ra: 125, rf: 140, bt: 80, bb: 60, hx: 5 },
+                // 6. Kai (Full Draw) - Horizontal Left (-90), Right Elbow back
+                // Right forearm aligns with arrow line
+                { la: -90, lf: 0, ra: 135, rf: 160, bt: 90, bb: 90, hx: 8 },
+                // 7. Hanare (Release) - Chest expands, arms fly apart
+                { la: -100, lf: 10, ra: 160, rf: 170, bt: 100, bb: 0, hx: 8 },
+                // 8. Zanshin (Remaining Spirit) - Hold finish
+                { la: -100, lf: 10, ra: 160, rf: 170, bt: 100, bb: 0, hx: 8 }
             ],
             init() {
                 this.el = {
@@ -676,68 +708,41 @@
                 const hx = this.lerp(p1.hx, p2.hx, t);
 
                 // Update Transforms with new Pivot Points
-                // Left Arm: Pivot at (15, -65) relative to Torso
-                this.el.al.setAttribute('transform', `translate(15, -65) rotate(${la})`);
-                // Left Forearm: Pivot at (0, 30) relative to Upper Arm
-                this.el.fl.setAttribute('transform', `translate(0, 30) rotate(${lf})`);
+                // Left Arm: Pivot at (18, -68) relative to Torso
+                this.el.al.setAttribute('transform', `translate(18, -68) rotate(${la})`);
+                // Left Forearm: Pivot at (0, 32) relative to Upper Arm
+                this.el.fl.setAttribute('transform', `translate(0, 32) rotate(${lf})`);
 
-                // Right Arm: Pivot at (-15, -65) relative to Torso
-                this.el.ar.setAttribute('transform', `translate(-15, -65) rotate(${ra})`);
-                // Right Forearm: Pivot at (0, 30) relative to Upper Arm
-                this.el.fr.setAttribute('transform', `translate(0, 30) rotate(${rf})`);
+                // Right Arm: Pivot at (-18, -68) relative to Torso
+                this.el.ar.setAttribute('transform', `translate(-18, -68) rotate(${ra})`);
+                // Right Forearm: Pivot at (0, 32) relative to Upper Arm
+                this.el.fr.setAttribute('transform', `translate(0, 32) rotate(${rf})`);
 
                 // Bow & Head
-                this.el.bowG.setAttribute('transform', `translate(0, 28) rotate(${bt})`);
-                this.el.head.setAttribute('transform', `translate(${hx}, -80)`);
+                this.el.bowG.setAttribute('transform', `translate(0, 29) rotate(${bt})`);
+                this.el.head.setAttribute('transform', `translate(${hx}, -82)`);
                 this.el.bowP.setAttribute('d', `M0,-130 Q${bb * 1.5},0 0,80`);
 
                 // Kinematics for String & Arrow
                 const r = Math.PI / 180;
-                // Bone Lengths: Upper=30, Fore=28 (to hand center)
-                // Shoulder Offsets: Left(15, -65), Right(-15, -65)
+                // Bone Lengths: Upper=32, Fore=29 (to hand center)
+                // Shoulder Offsets: Left(18, -68), Right(-18, -68)
 
                 // Left Hand Position (Global relative to Torso Group)
-                // L_Shoulder
-                const lsx = 15, lsy = -65;
-                // L_Elbow
-                const lex = lsx + 30 * Math.sin(la * r);
-                const ley = lsy + 30 * Math.cos(la * r); // Note: SVG Y is down, 0 deg is down? No, 0 deg is usually down in this rig logic?
-                // Wait, in previous code: lax = 22 - 35 * sin(la). 
-                // Let's check rotation direction. 
-                // If la = -90 (Left horizontal), sin(-90)=-1. lax = 22 - 35*(-1) = 57. Correct, extends right.
-                // cos(-90)=0. lay = 0.
-                // So 0 deg is DOWN (along +Y).
-                // New rig: Upper Arm is drawn 0,0 to 0,30. So 0 deg is DOWN.
+                const lsx = 18, lsy = -68;
+                const lex_t = lsx - 32 * Math.sin(la * r);
+                const ley_t = lsy + 32 * Math.cos(la * r);
 
-                // Correct Kinematics:
-                // L_Elbow relative to Shoulder: x = -30 * sin(la), y = 30 * cos(la) ??
-                // SVG Rotation: +Angle is CW. 
-                // If la = -90 (CCW 90), arm points Right (+X).
-                // sin(-90) = -1. -30 * -1 = 30. Correct (+X).
-                // cos(-90) = 0. Correct.
-                // So formula: x = -len * sin(a), y = len * cos(a).
-
-                // Let's re-verify old code: lax = 22 - 35 * Math.sin(la * r).
-                // 22 is offset. -35*sin(la). Yes.
-
-                // New L_Elbow (relative to Torso origin 0,0)
-                const lex_t = 15 - 30 * Math.sin(la * r);
-                const ley_t = -65 + 30 * Math.cos(la * r);
-
-                // L_Hand (relative to Torso origin)
-                // Forearm rotation is relative to Upper Arm?
-                // SVG: <g transform="rotate(lf)"> inside <g transform="rotate(la)">
-                // So total angle = la + lf.
-                const lhx = lex_t - 28 * Math.sin((la + lf) * r);
-                const lhy = ley_t + 28 * Math.cos((la + lf) * r);
+                const lhx = lex_t - 29 * Math.sin((la + lf) * r);
+                const lhy = ley_t + 29 * Math.cos((la + lf) * r);
 
                 // Right Hand Position
-                // R_Shoulder (-15, -65)
-                const rex_t = -15 - 30 * Math.sin(ra * r);
-                const rey_t = -65 + 30 * Math.cos(ra * r);
+                const rsx = -18, rsy = -68;
+                const rex_t = rsx - 32 * Math.sin(ra * r);
+                const rey_t = rsy + 32 * Math.cos(ra * r);
 
-                const rhx = rex_t - 28 * Math.sin((ra + rf) * r);
-                const rhy = rey_t + 28 * Math.cos((ra + rf) * r);
+                const rhx = rex_t - 29 * Math.sin((ra + rf) * r);
+                const rhy = rey_t + 29 * Math.cos((ra + rf) * r);
 
                 // Bow String Anchor Points (relative to Left Hand)
                 // Bow Angle bt is relative to Hand.
@@ -802,7 +807,7 @@
                 } else if (this.state === 'KAI') {
                     const b = Math.sin(Date.now() / 400) * 2;
                     const pk = this.poses[5];
-                    this.el.ar.setAttribute('transform', `translate(-15, -65) rotate(${pk.ra + b / 3})`);
+                    this.el.ar.setAttribute('transform', `translate(-18, -68) rotate(${pk.ra + b / 3})`);
                     this.update(pk, pk, 0);
                 }
                 requestAnimationFrame(() => this.loop());
