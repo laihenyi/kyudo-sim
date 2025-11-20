@@ -1,0 +1,908 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>弓道射法模擬 (Right Aim - Corrected)</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #222;
+            font-family: "Noto Serif JP", serif;
+            color: #ecf0f1;
+            display: flex;
+            height: 100vh;
+            user-select: none;
+        }
+
+        #app-container {
+            display: flex;
+            width: 100%;
+            height: 100%;
+        }
+
+        /* LEFT PANEL */
+        #left-panel {
+            width: 340px;
+            background: #1a1a1a;
+            border-right: 2px solid #444;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            box-sizing: border-box;
+            z-index: 10;
+            overflow-y: auto;
+        }
+
+        #svg-anim-window {
+            width: 100%;
+            max-width: 300px;
+            height: 320px;
+            background: #333;
+            border: 4px solid #e67e22;
+            border-radius: 4px;
+            box-shadow: inset 0 0 30px rgba(0, 0, 0, 0.5);
+            margin: 0 auto 15px auto;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .dojo-floor {
+            fill: #d2b48c;
+            opacity: 0.2;
+        }
+
+        #phase-indicator {
+            font-family: "Courier New", monospace;
+            background: #222;
+            color: #f1c40f;
+            padding: 10px;
+            text-align: center;
+            border-radius: 4px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            border: 1px solid #555;
+            font-size: 0.9rem;
+        }
+
+        .control-group {
+            background: #2c3e50;
+            padding: 10px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+        }
+
+        label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.8rem;
+            color: #bdc3c7;
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 100%;
+            cursor: pointer;
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 4px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            transition: 0.2s;
+            margin-bottom: 10px;
+        }
+
+        #btn-shoot {
+            background: #555;
+            color: #aaa;
+            cursor: not-allowed;
+        }
+
+        #btn-shoot.ready {
+            background: #c0392b;
+            color: white;
+            cursor: pointer;
+            animation: pulse 2s infinite;
+        }
+
+        #btn-shoot.ready:hover {
+            background: #e74c3c;
+        }
+
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(192, 57, 43, 0.4);
+            }
+
+            70% {
+                box-shadow: 0 0 0 10px rgba(192, 57, 43, 0);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(192, 57, 43, 0);
+            }
+        }
+
+        /* RIGHT PANEL */
+        #right-panel {
+            flex-grow: 1;
+            position: relative;
+            background: #333;
+        }
+
+        #viewport {
+            width: 100%;
+            height: 100%;
+            background: #87CEEB;
+            cursor: crosshair;
+            position: relative;
+            overflow: hidden;
+            touch-action: none;
+        }
+
+        #message {
+            position: absolute;
+            top: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.85);
+            color: #f1c40f;
+            padding: 15px 30px;
+            font-size: 2rem;
+            border-radius: 8px;
+            border: 2px solid #e67e22;
+            display: none;
+            z-index: 30;
+            pointer-events: none;
+            white-space: nowrap;
+            box-shadow: 0 0 20px rgba(0, 0, 0, 0.8);
+        }
+
+        /* ZOOM / REPLAY VIEW */
+        #zoom-view {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            width: 220px;
+            height: 220px;
+            background: #fff;
+            border: 4px solid #444;
+            border-radius: 50%;
+            overflow: hidden;
+            display: none;
+            z-index: 20;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            transition: all 0.3s ease;
+        }
+
+        /* Hawk-Eye Style (Rectangular, Wide) */
+        #zoom-view.hawk-eye {
+            width: 300px;
+            height: 200px;
+            border-radius: 8px;
+            border-color: #e67e22;
+            background: #1e1e1e;
+            /* Dark background for replay */
+        }
+
+        #zoom-label {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            color: #fff;
+            font-family: sans-serif;
+            font-size: 0.7rem;
+            background: rgba(0, 0, 0, 0.7);
+            padding: 2px 5px;
+            z-index: 25;
+            display: none;
+            pointer-events: none;
+        }
+
+        .info-text {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.6);
+            color: #fff;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+            border-radius: 4px;
+            pointer-events: none;
+        }
+
+        /* SVG Styles */
+        svg {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .bow-inner {
+            fill: url(#bambooInnerGrad);
+        }
+
+        .bow-side {
+            fill: url(#bambooSideGrad);
+        }
+
+        .bow-grip {
+            fill: url(#leatherGrad);
+        }
+
+        .ghost-skin {
+            fill: url(#skinGrad);
+            fill-opacity: 0.3;
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 0.8;
+        }
+
+        .arrow-shaft-ghost {
+            fill: url(#arrowPerspGrad);
+            stroke: none;
+        }
+
+        .arrow-tip-ghost {
+            fill: rgba(30, 30, 30, 0.7);
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 0.5;
+        }
+
+        .guideline {
+            stroke: #ff3333;
+            stroke-width: 1;
+            stroke-dasharray: 4, 4;
+            opacity: 0.5;
+            display: none;
+        }
+
+        .guideline.active {
+            display: block;
+        }
+
+        .m-w {
+            fill: #fff;
+        }
+
+        .m-b {
+            fill: #111;
+        }
+
+        /* Skeleton Styles */
+        .sk-bone {
+            stroke: rgba(255, 255, 255, 0.8);
+            stroke-width: 3;
+            stroke-linecap: round;
+            fill: none;
+        }
+
+        .sk-joint {
+            fill: #e67e22;
+            stroke: #fff;
+            stroke-width: 1;
+        }
+
+        .sk-body {
+            fill: rgba(255, 255, 255, 0.1);
+            stroke: rgba(255, 255, 255, 0.3);
+            stroke-width: 1;
+        }
+
+        .sk-head {
+            fill: rgba(255, 255, 255, 0.2);
+            stroke: #fff;
+            stroke-width: 1;
+        }
+
+        .sk-bow {
+            fill: none;
+            stroke: #d2691e;
+            stroke-width: 3;
+            stroke-linecap: round;
+        }
+
+        .sk-string {
+            stroke: #fff;
+            stroke-width: 1.5;
+            opacity: 0.9;
+        }
+
+        .sk-arrow {
+            stroke: #00ffff;
+            stroke-width: 2;
+            opacity: 0.9;
+        }
+
+        /* Trajectory Animation - FIXED LENGTH */
+        .traj-line {
+            stroke: #f1c40f;
+            stroke-width: 3;
+            /* Thicker */
+            stroke-dasharray: 1000;
+            /* Increased from 100 to 1000 to cover full distance */
+            stroke-dashoffset: 1000;
+            animation: drawLine 0.6s forwards ease-out;
+            fill: none;
+            filter: drop-shadow(0 0 2px rgba(0, 0, 0, 0.8));
+        }
+
+        .impact-pulse {
+            animation: pulseImpact 0.5s forwards;
+            transform-origin: center;
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        @keyframes drawLine {
+            to {
+                stroke-dashoffset: 0;
+            }
+        }
+
+        @keyframes pulseImpact {
+            0% {
+                transform: scale(1);
+                opacity: 0.8;
+            }
+
+            100% {
+                transform: scale(3);
+                opacity: 0;
+            }
+        }
+
+        /* Mobile Responsive Tweak */
+        @media (max-width: 768px) {
+            body {
+                overflow: auto;
+                height: auto;
+            }
+
+            #app-container {
+                flex-direction: column;
+            }
+
+            #left-panel {
+                width: 100%;
+                height: auto;
+                border-right: none;
+                border-bottom: 2px solid #444;
+                padding: 15px;
+            }
+
+            #right-panel {
+                height: 60vh;
+                min-height: 400px;
+            }
+
+            #message {
+                font-size: 1.5rem;
+                padding: 10px 20px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div id="app-container">
+        <div id="left-panel">
+            <div id="phase-indicator">射法八節</div>
+            <div id="svg-anim-window">
+                <svg id="archer-svg" viewBox="0 0 300 300" preserveAspectRatio="xMidYMid meet">
+                    <defs>
+                        <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
+                            <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#333" stroke-width="0.5" />
+                        </pattern>
+                    </defs>
+                    <rect width="300" height="300" fill="url(#grid)" />
+                    <rect y="260" width="300" height="40" class="dojo-floor" />
+
+                    <g id="archer-rig" transform="translate(150, 260)">
+                        <path d="M-25,-90 L-55,0 L-10,0 L-5,-70 Z" class="sk-body" />
+                        <path d="M25,-90 L55,0 L10,0 L5,-70 Z" class="sk-body" />
+                        <path d="M-25,0 L-28,-80 L28,-80 L25,0 Z" class="sk-body" />
+                        <g id="head-grp" transform="translate(0, -90)">
+                            <circle cx="0" cy="-15" r="14" class="sk-head" />
+                            <!-- NOSE: Points RIGHT -->
+                            <path d="M10,-15 L16,-12 L10,-9" fill="none" stroke="#fff" stroke-width="1" />
+                        </g>
+
+                        <g id="torso-bones" transform="translate(0, -80)">
+                            <line x1="0" y1="0" x2="0" y2="80" class="sk-bone" stroke-dasharray="2,2" opacity="0.5"
+                                stroke-width="1" />
+                            <line x1="-22" y1="0" x2="22" y2="0" class="sk-bone" />
+                            <circle cx="0" cy="0" r="3" class="sk-joint" />
+
+                            <!-- LEFT ARM (Bow Hand) - Target Side -> RIGHT -->
+                            <g id="arm-l-grp">
+                                <line x1="0" y1="0" x2="0" y2="35" class="sk-bone" />
+                                <circle cx="0" cy="0" r="3" class="sk-joint" />
+                                <g id="fore-l-grp">
+                                    <line x1="0" y1="0" x2="0" y2="30" class="sk-bone" />
+                                    <circle cx="0" cy="0" r="2.5" class="sk-joint" />
+                                    <circle cx="0" cy="30" r="2.5" class="sk-joint" />
+                                    <!-- BOW ANCHOR -->
+                                    <g id="bow-grp">
+                                        <!-- Bow Curve: Convex to Right (+X) -->
+                                        <path id="anim-bow" d="M0,-130 Q0,0 0,80" class="sk-bow" />
+                                    </g>
+                                </g>
+                            </g>
+
+                            <!-- RIGHT ARM (String Hand) - Draw Side -> LEFT -->
+                            <g id="arm-r-grp">
+                                <line x1="0" y1="0" x2="0" y2="35" class="sk-bone" />
+                                <circle cx="0" cy="0" r="3" class="sk-joint" />
+                                <g id="fore-r-grp">
+                                    <line x1="0" y1="0" x2="0" y2="30" class="sk-bone" />
+                                    <circle cx="0" cy="0" r="2.5" class="sk-joint" />
+                                    <circle cx="0" cy="30" r="2.5" class="sk-joint" />
+                                </g>
+                            </g>
+
+                            <!-- Dynamic Strings & Arrow -->
+                            <g id="dynamic-visuals">
+                                <path id="anim-string" d="M0,0" class="sk-string" fill="none" />
+                                <line id="anim-arrow-line" x1="0" y1="0" x2="0" y2="0" class="sk-arrow"
+                                    style="display:none" />
+                            </g>
+                        </g>
+                    </g>
+                </svg>
+            </div>
+
+            <div class="control-group">
+                <label>弓力 <span id="d-pow">15 kg</span></label>
+                <input type="range" id="i-pow" min="10" max="30" value="15">
+                <label>箭重 <span id="d-wgt">28 g</span></label>
+                <input type="range" id="i-wgt" min="20" max="35" value="28">
+                <label>左右 (Azuke) <span id="d-ax">280</span></label>
+                <input type="range" id="i-ax" min="-100" max="600" value="280">
+                <label>上下 (Height) <span id="d-ay">0</span></label>
+                <input type="range" id="i-ay" min="-200" max="200" value="0">
+                <label>呼吸震幅 (Breath) <span id="d-br">2</span></label>
+                <input type="range" id="i-br" min="0" max="15" value="2" step="1">
+            </div>
+            <button id="btn-shoot" disabled>發 射 (Hanare)</button>
+            <div style="margin-top:auto; text-align:center; font-size:0.75rem; color:#888; line-height: 1.6;">
+                <strong style="color:#f1c40f">操作指南：</strong><br>
+                1. 等待「会」<br>
+                2. 長按方向鍵以移動瞄準<br>
+                3. 按 <strong>[空白鍵]</strong> 發射<br>
+                <span style="color:#aaa; font-size:0.7rem">* 特寫：5公尺內自動開啟落點重播</span>
+            </div>
+        </div>
+
+        <div id="right-panel">
+            <div id="viewport">
+                <div id="message"></div>
+                <div class="info-text">視角修正：地平線與靶位於箭枕 (拇指) 高度。</div>
+
+                <!-- Combined Zoom / Replay View -->
+                <div id="zoom-view">
+                    <div id="zoom-label">REPLAY</div>
+                    <svg viewBox="0 0 400 300" id="zoom-svg">
+                        <defs>
+                            <pattern id="grass" width="20" height="20" patternUnits="userSpaceOnUse">
+                                <rect width="20" height="20" fill="#2ecc71" />
+                                <path d="M0,20 l10,-10 l10,10" fill="none" stroke="#27ae60" stroke-width="1"
+                                    opacity="0.5" />
+                            </pattern>
+                            <linearGradient id="azuchiSand" x1="0%" y1="0%" x2="0%" y2="100%">
+                                <stop offset="0%" style="stop-color:#5d4037" />
+                                <stop offset="100%" style="stop-color:#3e2723" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- MODE 1: TARGET FACE (Hit or very close) -->
+                        <g id="z-mode-face" style="display:none">
+                            <!-- Centered at 200, 150 -->
+                            <g transform="translate(200,150) scale(3.5)">
+                                <circle r="36" class="m-w" stroke="#ccc" stroke-width="0.5" />
+                                <circle r="29" class="m-b" />
+                                <circle r="22" class="m-w" />
+                                <circle r="15" class="m-b" />
+                                <circle r="8" class="m-w" />
+                                <circle r="3" class="m-b" />
+                                <g id="z-hits-face"></g>
+                            </g>
+                        </g>
+
+                        <!-- MODE 2: HAWK-EYE (Azuchi/Ground View) -->
+                        <g id="z-mode-hawk" style="display:none">
+                            <!-- Background Sky/Wall -->
+                            <rect x="0" y="0" width="400" height="300" fill="#2c3e50" />
+                            <!-- Ground (Grass) -->
+                            <rect x="0" y="200" width="400" height="100" fill="url(#grass)" />
+                            <!-- Azuchi (Sand Bank) -->
+                            <path d="M50,200 L350,200 L380,300 L20,300 Z" fill="#3e2723" opacity="0.5" />
+                            <!-- Shadow -->
+                            <path d="M50,200 L350,200 L350,80 L50,80 Z" fill="url(#azuchiSand)" /> <!-- Bank Face -->
+                            <!-- Added Grid Lines to Azuchi for depth perception -->
+                            <g stroke="rgba(255,255,255,0.15)" stroke-width="1">
+                                <line x1="50" y1="120" x2="350" y2="120" />
+                                <line x1="50" y1="160" x2="350" y2="160" />
+                                <line x1="150" y1="80" x2="150" y2="200" />
+                                <line x1="250" y1="80" x2="250" y2="200" />
+                            </g>
+                            <path d="M30,200 L50,80 L350,80 L370,200 Z" fill="none" stroke="#fff" stroke-width="1"
+                                stroke-dasharray="5,5" opacity="0.3" /> <!-- Grid Reference -->
+
+                            <!-- Target Stand & Target (Small) -->
+                            <g transform="translate(200, 150)">
+                                <!-- Stand Legs -->
+                                <line x1="-10" y1="10" x2="-15" y2="50" stroke="#888" stroke-width="2" />
+                                <line x1="10" y1="10" x2="15" y2="50" stroke="#888" stroke-width="2" />
+                                <!-- Target Face (18cm radius mapped to screen) -->
+                                <circle r="18" class="m-w" stroke="#ccc" stroke-width="1" />
+                                <circle r="14.5" class="m-b" />
+                                <circle r="11" class="m-w" />
+                                <circle r="7.5" class="m-b" />
+                                <circle r="4" class="m-w" />
+                                <circle r="1.5" class="m-b" />
+                            </g>
+
+                            <g id="z-hits-hawk"></g>
+                        </g>
+                    </svg>
+                </div>
+
+                <svg class="main-svg" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice">
+                    <defs>
+                        <linearGradient id="bambooInnerGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#c19a6b" />
+                            <stop offset="100%" style="stop-color:#a08050" />
+                        </linearGradient>
+                        <linearGradient id="bambooSideGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#8B0000" />
+                            <stop offset="80%" style="stop-color:#500000" />
+                        </linearGradient>
+                        <linearGradient id="leatherGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#5d4037" />
+                            <stop offset="100%" style="stop-color:#4e342e" />
+                        </linearGradient>
+                        <linearGradient id="skinGrad" x1="0%" y1="100%" x2="100%" y2="0%">
+                            <stop offset="0%" style="stop-color:#e0ac69" />
+                            <stop offset="100%" style="stop-color:#ffdbac" />
+                        </linearGradient>
+                        <linearGradient id="arrowPerspGrad" x1="100%" y1="50%" x2="0%" y2="0%">
+                            <stop offset="0%" style="stop-color:#DAA520; stop-opacity:0.1" />
+                            <stop offset="40%" style="stop-color:#DAA520; stop-opacity:0.4" />
+                            <stop offset="100%" style="stop-color:#DAA520; stop-opacity:0.9" />
+                        </linearGradient>
+                        <linearGradient id="azuchiGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                            <stop offset="0%" style="stop-color:#5c4033" />
+                            <stop offset="100%" style="stop-color:#8d6e63" />
+                        </linearGradient>
+                    </defs>
+
+                    <rect width="1200" height="380" fill="#87CEEB" />
+                    <rect y="380" width="1200" height="420" fill="url(#azuchiGrad)" />
+                    <path d="M0,380 L1200,380 L1200,370 L0,370 Z" fill="#3e2723" />
+
+                    <g id="target-grp" transform="translate(600, 380)">
+                        <line x1="-5" y1="5" x2="-7" y2="15" stroke="#333" stroke-width="1" />
+                        <line x1="5" y1="5" x2="7" y2="15" stroke="#333" stroke-width="1" />
+                        <circle r="7.2" class="m-w" />
+                        <circle r="5.8" class="m-b" />
+                        <circle r="4.4" class="m-w" />
+                        <circle r="3.0" class="m-b" />
+                        <circle r="1.6" class="m-w" />
+                        <circle r="0.6" class="m-b" />
+                    </g>
+
+                    <g id="rig-grp" transform="translate(300, 402)">
+                        <path d="M-200,400 L-40,80 L10,80 L60,400 Z" class="ghost-skin" />
+                        <g id="bow-model" transform="rotate(-5)">
+                            <path d="M-20,-50 L-18,-600 L-5,-600 L0,-50 Z" class="bow-inner" />
+                            <path d="M0,-50 L-5,-600 L-2,-600 L5,-50 Z" class="bow-side" />
+                            <path d="M-20,50 L-22,600 L-7,600 L0,50 Z" class="bow-inner" />
+                            <path d="M0,50 L-7,600 L-3,600 L5,50 Z" class="bow-side" />
+                            <path d="M-22,-50 L0,-50 L0,50 L-22,50 Z" class="bow-grip" />
+                            <rect x="-21" y="-85" width="20" height="35" rx="2" fill="#DAA520" stroke="#8B4513"
+                                stroke-width="0.5" />
+                        </g>
+                        <path d="M8,-24 L400,80 L400,120 L8,-20 Z" class="arrow-shaft-ghost" />
+                        <path d="M8,-22 L0,-24 L0,-20 Z" class="arrow-tip-ghost" />
+                        <g transform="rotate(-5)">
+                            <path d="M-10,20 C0,30 15,25 20,10 C22,0 20,-20 0,-25 C-15,-20 -20,0 -10,20 Z"
+                                class="ghost-skin" />
+                            <path d="M-25,-30 C-40,-25 -45,-10 -35,0 L-22,-5" class="ghost-skin" />
+                            <path d="M-25,-5 C-50,5 -50,30 -25,35 L-22,25" class="ghost-skin" />
+                        </g>
+                        <line x1="-25" y1="-600" x2="-25" y2="600" stroke="#fff" stroke-width="1" opacity="0.6" />
+                        <line x1="4" y1="-200" x2="4" y2="200" class="guideline" />
+                        <line x1="8" y1="-22" x2="600" y2="-22" class="guideline" />
+                    </g>
+                    <circle id="fly-arrow" cx="0" cy="0" r="2" fill="#000" style="display:none" />
+                </svg>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const SoundEngine = { ctx: null, init() { window.AudioContext = window.AudioContext || window.webkitAudioContext; this.ctx = new AudioContext(); }, resume() { if (!this.ctx) this.init(); if (this.ctx.state === 'suspended') this.ctx.resume(); }, playHit() { if (!this.ctx) this.init(); if (this.ctx.state === 'suspended') this.ctx.resume(); const t = this.ctx.currentTime; const nb = this.ctx.createBuffer(1, this.ctx.sampleRate * 0.15, this.ctx.sampleRate); const o = nb.getChannelData(0); for (let i = 0; i < o.length; i++)o[i] = Math.random() * 2 - 1; const ns = this.ctx.createBufferSource(); ns.buffer = nb; const nf = this.ctx.createBiquadFilter(); nf.type = 'highpass'; nf.frequency.value = 600; const ng = this.ctx.createGain(); ng.gain.setValueAtTime(0.8, t); ng.gain.exponentialRampToValueAtTime(0.01, t + 0.1); ns.connect(nf); nf.connect(ng); ng.connect(this.ctx.destination); ns.start(t); const os = this.ctx.createOscillator(); os.type = 'triangle'; os.frequency.setValueAtTime(100, t); os.frequency.exponentialRampToValueAtTime(30, t + 0.25); const og = this.ctx.createGain(); og.gain.setValueAtTime(0.6, t); og.gain.exponentialRampToValueAtTime(0.001, t + 0.35); os.connect(og); og.connect(this.ctx.destination); os.start(t); os.stop(t + 0.4); } };
+
+        const SvgArcherEngine = {
+            el: {}, state: 'INIT', stage: 0, progress: 0,
+            poses: [
+                { la: -20, lf: 10, ra: 20, rf: -10, bt: 20, bb: 0, hx: 0 }, // Ashibumi
+                { la: -25, lf: 30, ra: 25, rf: -30, bt: 25, bb: 0, hx: 0 }, // Dozukuri
+                { la: -45, lf: 10, ra: 45, rf: -10, bt: 45, bb: 0, hx: 1 }, // Uchiokoshi
+                { la: -60, lf: 0, ra: 120, rf: 80, bt: 60, bb: 20, hx: 3 }, // Daisan
+                { la: -80, lf: 0, ra: 130, rf: 120, bt: 80, bb: 50, hx: 6 }, // Hikiwake
+                { la: -90, lf: 0, ra: 135, rf: 160, bt: 90, bb: 80, hx: 8 }, // Kai
+                { la: -100, lf: 10, ra: 160, rf: 170, bt: 100, bb: 0, hx: 8 }, // Hanare
+                { la: -100, lf: 10, ra: 160, rf: 170, bt: 100, bb: 0, hx: 8 }  // Zanshin
+            ],
+            init() {
+                this.el = {
+                    al: document.getElementById('arm-l-grp'), fl: document.getElementById('fore-l-grp'),
+                    ar: document.getElementById('arm-r-grp'), fr: document.getElementById('fore-r-grp'),
+                    bowG: document.getElementById('bow-grp'), bowP: document.getElementById('anim-bow'),
+                    strPath: document.getElementById('anim-string'), arrLine: document.getElementById('anim-arrow-line'),
+                    txt: document.getElementById('phase-indicator'), head: document.getElementById('head-grp')
+                };
+                this.reset(); this.loop();
+            },
+            reset() {
+                this.state = 'ANIMATING'; this.stage = 0; this.progress = 0;
+                this.updateText(); toggleShootBtn(false); this.el.arrLine.style.display = 'none';
+            },
+            triggerHanare() { if (this.stage === 5) { this.state = 'ANIMATING'; this.stage = 6; this.progress = 0; } },
+            lerp(a, b, t) { return a + (b - a) * t; },
+            update(p1, p2, t) {
+                const la = this.lerp(p1.la, p2.la, t), lf = this.lerp(p1.lf, p2.lf, t);
+                const ra = this.lerp(p1.ra, p2.ra, t), rf = this.lerp(p1.rf, p2.rf, t);
+                const bt = this.lerp(p1.bt, p2.bt, t), bb = this.lerp(p1.bb, p2.bb, t);
+                const hx = this.lerp(p1.hx, p2.hx, t);
+                this.el.al.setAttribute('transform', `translate(22,0) rotate(${la})`);
+                this.el.fl.setAttribute('transform', `translate(0,35) rotate(${lf})`);
+                this.el.ar.setAttribute('transform', `translate(-22,0) rotate(${ra})`);
+                this.el.fr.setAttribute('transform', `translate(0,35) rotate(${rf})`);
+                this.el.bowG.setAttribute('transform', `translate(0,30) rotate(${bt})`);
+                this.el.head.setAttribute('transform', `translate(${hx}, -90)`);
+                this.el.bowP.setAttribute('d', `M0,-130 Q${bb * 1.5},0 0,80`);
+                const r = Math.PI / 180;
+                const lax = 22 - 35 * Math.sin(la * r), lay = 35 * Math.cos(la * r);
+                const lhx = lax - 30 * Math.sin((la + lf) * r), lhy = lay + 30 * Math.cos((la + lf) * r);
+                const rax = -22 - 35 * Math.sin(ra * r), ray = 35 * Math.cos(ra * r);
+                const rhx = rax - 30 * Math.sin((ra + rf) * r), rhy = ray + 30 * Math.cos((ra + rf) * r);
+                const bAng = (la + lf + bt) * r;
+                const tx = lhx + 130 * Math.sin(bAng), ty = lhy - 130 * Math.cos(bAng);
+                const bx = lhx - 80 * Math.sin(bAng), by = lhy + 80 * Math.cos(bAng);
+                if (bb > 5) {
+                    this.el.arrLine.style.display = 'block';
+                    this.el.strPath.setAttribute('d', `M${tx},${ty} L${rhx},${rhy} L${bx},${by}`);
+                    this.el.arrLine.setAttribute('x1', rhx); this.el.arrLine.setAttribute('y1', rhy);
+                    this.el.arrLine.setAttribute('x2', lhx); this.el.arrLine.setAttribute('y2', lhy);
+                } else {
+                    this.el.arrLine.style.display = 'none';
+                    this.el.strPath.setAttribute('d', `M${tx},${ty} L${bx},${by}`);
+                }
+            },
+            loop() {
+                if (this.state === 'ANIMATING') {
+                    this.progress += 0.015;
+                    if (this.progress >= 1) {
+                        this.progress = 0;
+                        if (this.stage < 5) {
+                            this.stage++; this.updateText();
+                            if (this.stage === 5) { this.state = 'KAI'; toggleShootBtn(true); }
+                        } else if (this.stage === 6) {
+                            this.stage = 7; this.updateText();
+                        } else {
+                            this.state = 'ZANSHIN';
+                        }
+                    }
+                    const p1 = this.poses[this.stage];
+                    const p2 = this.poses[Math.min(this.stage + 1, 7)];
+                    this.update(p1, p2, this.progress);
+                } else if (this.state === 'KAI') {
+                    const b = Math.sin(Date.now() / 400) * 2;
+                    const pk = this.poses[5];
+                    this.el.ar.setAttribute('transform', `translate(-22,0) rotate(${pk.ra + b / 3})`);
+                    this.update(pk, pk, 0);
+                }
+                requestAnimationFrame(() => this.loop());
+            },
+            updateText() { document.getElementById('phase-indicator').innerText = ["足踏み", "胴造り", "打起し", "大三", "引分け", "会 (Kai)", "離れ", "殘心"][this.stage] || "殘心"; }
+        };
+
+        (function () {
+            const PX_TO_CM = 2.5, DIST_M = 28, G = 9.81;
+            let s = { pow: 15, wgt: 28, ax: 280, ay: 0, br: 2, aiming: false, drag: false, lx: 0, ly: 0, vx: 0, vy: 0, swayX: 0, swayY: 0 };
+            let heldKeys = {};
+            const ACCEL = 0.4, FRICTION = 0.92, MAX_SPEED = 6;
+
+            const el = {
+                vp: document.getElementById('viewport'), rig: document.getElementById('rig-grp'), fly: document.getElementById('fly-arrow'),
+                zv: document.getElementById('zoom-view'), zSvg: document.getElementById('zoom-svg'),
+                zLabel: document.getElementById('zoom-label'),
+                zFace: document.getElementById('z-mode-face'), zHawk: document.getElementById('z-mode-hawk'),
+                zhFace: document.getElementById('z-hits-face'), zhHawk: document.getElementById('z-hits-hawk'),
+                msg: document.getElementById('message'),
+                btnS: document.getElementById('btn-shoot'),
+                in: { pow: document.getElementById('i-pow'), wgt: document.getElementById('i-wgt'), ax: document.getElementById('i-ax'), ay: document.getElementById('i-ay'), br: document.getElementById('i-br') },
+                d: { pow: document.getElementById('d-pow'), wgt: document.getElementById('d-wgt'), ax: document.getElementById('d-ax'), ay: document.getElementById('d-ay'), br: document.getElementById('d-br') }
+            };
+
+            function init() { bind(); SvgArcherEngine.init(); loop(); }
+
+            function bind() {
+                const upd = k => e => { s[k] = parseInt(e.target.value); el.d[k].innerText = s[k] + (k == 'pow' ? ' kg' : k == 'wgt' ? ' g' : ''); };
+                el.in.pow.addEventListener('input', upd('pow')); el.in.wgt.addEventListener('input', upd('wgt'));
+                el.in.ax.addEventListener('input', upd('ax')); el.in.ay.addEventListener('input', upd('ay'));
+                el.in.br.addEventListener('input', upd('br'));
+                el.btnS.addEventListener('click', () => { SoundEngine.resume(); shoot(); });
+                window.addEventListener('keydown', e => {
+                    if ([' ', 'Enter', 'ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) SoundEngine.resume();
+                    if (e.key === ' ' || e.key === 'Enter') { e.preventDefault(); s.aiming ? shoot() : (el.msg.style.display == 'block' ? reset() : null); return; }
+                    if (s.aiming && ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) { e.preventDefault(); heldKeys[e.key] = true; }
+                });
+                window.addEventListener('keyup', e => { if (['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight'].includes(e.key)) { heldKeys[e.key] = false; } });
+                el.vp.addEventListener('pointerdown', e => { SoundEngine.resume(); if (s.aiming) { s.drag = true; s.lx = e.clientX; s.ly = e.clientY; el.vp.setPointerCapture(e.pointerId); } });
+                el.vp.addEventListener('pointermove', e => { if (s.drag && s.aiming) { const dx = e.clientX - s.lx; const dy = e.clientY - s.ly; s.ax += dx; s.ay += dy; s.lx = e.clientX; s.ly = e.clientY; syncUI(); } });
+                el.vp.addEventListener('pointerup', () => s.drag = false);
+            }
+
+            function syncUI() { s.ax = Math.min(Math.max(s.ax, -100), 600); s.ay = Math.min(Math.max(s.ay, -200), 200); el.in.ax.value = s.ax; el.in.ay.value = s.ay; }
+            window.toggleShootBtn = function (en) { s.aiming = en; el.btnS.disabled = !en; en ? el.btnS.classList.add('ready') : el.btnS.classList.remove('ready'); el.btnS.innerText = en ? "發 射 (Hanare)" : "等待射法流程..."; };
+
+            let t = 0, noiseX = 0, noiseY = 0;
+            function loop() {
+                t += 0.05;
+                if (s.aiming) {
+                    if (!s.drag) {
+                        if (heldKeys['ArrowLeft']) s.vx -= ACCEL; if (heldKeys['ArrowRight']) s.vx += ACCEL;
+                        if (heldKeys['ArrowUp']) s.vy -= ACCEL; if (heldKeys['ArrowDown']) s.vy += ACCEL;
+                    }
+                    s.vx *= FRICTION; s.vy *= FRICTION;
+                    const speed = Math.sqrt(s.vx * s.vx + s.vy * s.vy);
+                    if (speed > MAX_SPEED) { const ratio = MAX_SPEED / speed; s.vx *= ratio; s.vy *= ratio; }
+                    if (Math.abs(s.vx) < 0.01) s.vx = 0; if (Math.abs(s.vy) < 0.01) s.vy = 0;
+                    s.ax += s.vx; s.ay += s.vy;
+                    if (Math.abs(s.vx) > 0 || Math.abs(s.vy) > 0) syncUI();
+
+                    const breathY = Math.sin(t * 0.5) * (s.br * 1.5);
+                    const tremorMag = s.br * 0.2;
+                    const jitterX = (Math.random() - 0.5) * tremorMag;
+                    const jitterY = (Math.random() - 0.5) * tremorMag;
+                    noiseX += (Math.random() - 0.5) * 0.05 * s.br; noiseY += (Math.random() - 0.5) * 0.05 * s.br;
+                    noiseX *= 0.98; noiseY *= 0.98;
+                    el.rig.setAttribute('transform', `translate(${300 + s.ax + jitterX + noiseX}, ${402 + s.ay + breathY + jitterY + noiseY})`);
+                }
+                requestAnimationFrame(loop);
+            }
+
+            function shoot() {
+                if (!s.aiming) return; s.aiming = false; el.btnS.disabled = true; el.btnS.classList.remove('ready'); heldKeys = {}; s.vx = 0; s.vy = 0;
+                SvgArcherEngine.triggerHanare();
+                const f = s.pow * 9.81, e = 0.5 * f * 0.85 * 0.75, m = s.wgt / 1000, v0 = Math.sqrt(2 * e / m);
+                const tof = DIST_M / v0, drop = (0.5 * G * tof * tof * 100) / PX_TO_CM;
+
+                const breathY = Math.sin(t * 0.5) * (s.br * 1.5);
+                const bx = 300 + s.ax + noiseX; const by = 402 + s.ay + breathY + noiseY;
+                const pY = 402 - drop; const pX = 596;
+                const dX = bx - pX, dY = by - pY;
+
+                el.rig.style.transition = "transform 0.1s ease-out";
+                el.rig.style.transform = `translate(${bx - 150}, ${by}) rotate(-30deg)`;
+                el.rig.style.opacity = 0.3;
+                el.fly.style.display = "block";
+
+                let p = 0, sx = bx + 8, sy = by - 22, ex = 600 + dX, ey = 380 + dY;
+                function fLoop() {
+                    p += 0.15;
+                    const cx = sx + (ex - sx) * p, cy = sy + (ey - sy) * p, r = 3 - 2 * p;
+                    el.fly.setAttribute('cx', cx); el.fly.setAttribute('cy', cy); el.fly.setAttribute('r', r);
+                    if (p < 1) requestAnimationFrame(fLoop); else result(dX * PX_TO_CM, dY * PX_TO_CM);
+                }
+                fLoop();
+            }
+
+            function result(x, y) {
+                const distCm = Math.sqrt(x * x + y * y);
+                let txt = "外 (Hazure)", c = "#e74c3c";
+                let showReplay = false;
+                let mode = "";
+
+                el.zhHawk.innerHTML = '';
+                el.zLabel.style.display = 'none';
+
+                if (distCm < 18) {
+                    // HIT
+                    txt = "中 (Atari)!"; c = "#2ecc71";
+                    SoundEngine.playHit();
+                    if (distCm < 5) { txt = "皆中!!"; c = "#f1c40f"; }
+                    mode = 'face';
+                    showReplay = true;
+                } else if (distCm <= 500) {
+                    // MISS BUT CLOSE (5m)
+                    txt = "殘念 (Zannen)"; c = "#95a5a6";
+                    mode = 'hawk';
+                    showReplay = true;
+                    el.zLabel.style.display = 'block';
+                    el.zLabel.innerText = `REPLAY: X:${x.toFixed(0)} Y:${-y.toFixed(0)}`;
+                } else {
+                    // FAR MISS
+                    txt = "脫靶 (Out of Range)"; c = "#555";
+                    showReplay = false;
+                }
+
+                el.msg.innerText = txt; el.msg.style.color = c; el.msg.style.display = 'block';
+
+                if (showReplay) {
+                    el.zv.style.display = 'block';
+                    if (mode === 'face') {
+                        el.zv.className = ''; // Circle
+                        el.zFace.style.display = 'block';
+                        el.zHawk.style.display = 'none';
+
+                        // 1. Create permanent static dot (The Hit)
+                        const dot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        // Restore scale * 2 for Face View
+                        dot.setAttribute("cx", x * 2);
+                        dot.setAttribute("cy", y * 2);
+                        dot.setAttribute("r", 3);
+                        dot.setAttribute("fill", c);
+                        dot.setAttribute("stroke", "#000");
+                        el.zhFace.appendChild(dot);
+
+                        // 2. Create separate pulse effect (The Animation)
+                        const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        pulse.setAttribute("cx", x * 2);
+                        pulse.setAttribute("cy", y * 2);
+                        pulse.setAttribute("r", 3);
+                        pulse.setAttribute("fill", c);
+                        pulse.classList.add("impact-pulse");
+                        el.zhFace.appendChild(pulse);
+                    } else {
+                        el.zv.className = 'hawk-eye'; // Rect
+                        el.zFace.style.display = 'none';
+                        el.zHawk.style.display = 'block';
+
+                        const scale = 0.4;
+                        const hx = 200 + (x * scale);
+                        const hy = 150 + (y * scale);
+
+                        const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        const sx = 200 + (x * scale * 0.1);
+                        const sy = 300;
+                        line.setAttribute("d", `M${sx},${sy} L${hx},${hy}`);
+                        line.classList.add("traj-line");
+                        el.zhHawk.appendChild(line);
+
+                        const cross = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        cross.setAttribute("d", `M${hx - 5},${hy - 5} L${hx + 5},${hy + 5} M${hx + 5},${hy - 5} L${hx - 5},${hy + 5}`);
+                        cross.setAttribute("stroke", c);
+                        cross.setAttribute("stroke-width", "3");
+                        cross.classList.add("impact-pulse");
+                        el.zhHawk.appendChild(cross);
+                    }
+                } else {
+                    el.zv.style.display = 'none';
+                }
+            }
+
+            function reset() {
+                el.msg.style.display = 'none'; el.zv.style.display = 'none'; el.fly.style.display = 'none';
+                el.rig.style.transition = 'none'; el.rig.style.opacity = 1;
+                el.rig.setAttribute('transform', `translate(${300 + s.ax}, ${402 + s.ay})`);
+                SvgArcherEngine.reset();
+            }
+            init();
+        })();
+    </script>
+</body>
+
+</html>
