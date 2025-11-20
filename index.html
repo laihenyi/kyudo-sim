@@ -402,58 +402,67 @@
                         <pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse">
                             <path d="M 20 0 L 0 0 0 20" fill="none" stroke="#333" stroke-width="0.5" />
                         </pattern>
+                        <linearGradient id="floorGrad" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stop-color="#444" />
+                            <stop offset="100%" stop-color="#333" />
+                        </linearGradient>
                     </defs>
                     <rect width="300" height="300" fill="url(#grid)" />
-                    <rect y="260" width="300" height="40" class="dojo-floor" />
+                    <rect y="250" width="300" height="50" fill="url(#floorGrad)" />
 
-                    <g id="archer-rig" transform="translate(150, 260)">
-                        <path d="M-25,-90 L-55,0 L-10,0 L-5,-70 Z" class="sk-body" />
-                        <path d="M25,-90 L55,0 L10,0 L5,-70 Z" class="sk-body" />
-                        <path d="M-25,0 L-28,-80 L28,-80 L25,0 Z" class="sk-body" />
-                        <g id="head-grp" transform="translate(0, -90)">
-                            <circle cx="0" cy="-15" r="14" class="sk-head" />
-                            <!-- NOSE: Points RIGHT -->
-                            <path d="M10,-15 L16,-12 L10,-9" fill="none" stroke="#fff" stroke-width="1" />
+                    <!-- Vector Mannequin Rig -->
+                    <g id="archer-rig" transform="translate(150, 250)">
+                        <!-- LEGS -->
+                        <g id="legs">
+                            <path d="M-10,-60 L-25,0 L-5,0 L5,-60 Z" fill="#1a1a1a" stroke="#000" stroke-width="1" />
+                            <path d="M-25,0 L-35,5 L-15,5 Z" fill="#fff" stroke="#ccc" stroke-width="1" />
+                            <path d="M10,-60 L25,0 L5,0 L-5,-60 Z" fill="#1a1a1a" stroke="#000" stroke-width="1" />
+                            <path d="M25,0 L35,5 L15,5 Z" fill="#fff" stroke="#ccc" stroke-width="1" />
+                            <path d="M-15,-90 L-20,-50 L20,-50 L15,-90 Z" fill="#1a1a1a" stroke="#000"
+                                stroke-width="1" />
                         </g>
 
-                        <g id="torso-bones" transform="translate(0, -80)">
-                            <line x1="0" y1="0" x2="0" y2="80" class="sk-bone" stroke-dasharray="2,2" opacity="0.5"
-                                stroke-width="1" />
-                            <line x1="-22" y1="0" x2="22" y2="0" class="sk-bone" />
-                            <circle cx="0" cy="0" r="3" class="sk-joint" />
+                        <!-- TORSO -->
+                        <g id="torso-bones" transform="translate(0, -90)">
+                            <path d="M-18,0 L-22,-70 L22,-70 L18,0 Z" fill="#ffffff" stroke="#ccc" stroke-width="1" />
+                            <path d="M-22,-70 L0,-85 L22,-70" fill="none" stroke="#ddd" stroke-width="1" />
 
-                            <!-- LEFT ARM (Bow Hand) - Target Side -> RIGHT -->
-                            <g id="arm-l-grp">
-                                <line x1="0" y1="0" x2="0" y2="35" class="sk-bone" />
-                                <circle cx="0" cy="0" r="3" class="sk-joint" />
-                                <g id="fore-l-grp">
-                                    <line x1="0" y1="0" x2="0" y2="30" class="sk-bone" />
-                                    <circle cx="0" cy="0" r="2.5" class="sk-joint" />
-                                    <circle cx="0" cy="30" r="2.5" class="sk-joint" />
+                            <!-- HEAD -->
+                            <g id="head-grp" transform="translate(0, -80)">
+                                <circle cx="0" cy="-5" r="12" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
+                                <path d="M-12,-10 Q0,-20 12,-10 L12,-5 Q0,-15 -12,-5 Z" fill="#111" />
+                                <path d="M12,-5 L16,-2 L12,1" fill="none" stroke="#dbb070" stroke-width="1" />
+                            </g>
+
+                            <!-- LEFT ARM (Bow Hand) -->
+                            <g id="arm-l-grp" transform="translate(15, -65)">
+                                <path d="M0,0 L5,30 L-5,30 Z" fill="#ffffff" stroke="#ccc" stroke-width="1" />
+                                <g id="fore-l-grp" transform="translate(0, 30)">
+                                    <path d="M0,0 L4,25 L-4,25 Z" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
+                                    <circle cx="0" cy="28" r="5" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
                                     <!-- BOW ANCHOR -->
-                                    <g id="bow-grp">
-                                        <!-- Bow Curve: Convex to Right (+X) -->
-                                        <path id="anim-bow" d="M0,-130 Q0,0 0,80" class="sk-bow" />
+                                    <g id="bow-grp" transform="translate(0, 28)">
+                                        <path id="anim-bow" d="M0,-130 Q0,0 0,80" fill="none" stroke="#d2691e"
+                                            stroke-width="4" stroke-linecap="round" />
                                     </g>
                                 </g>
                             </g>
 
-                            <!-- RIGHT ARM (String Hand) - Draw Side -> LEFT -->
-                            <g id="arm-r-grp">
-                                <line x1="0" y1="0" x2="0" y2="35" class="sk-bone" />
-                                <circle cx="0" cy="0" r="3" class="sk-joint" />
-                                <g id="fore-r-grp">
-                                    <line x1="0" y1="0" x2="0" y2="30" class="sk-bone" />
-                                    <circle cx="0" cy="0" r="2.5" class="sk-joint" />
-                                    <circle cx="0" cy="30" r="2.5" class="sk-joint" />
+                            <!-- RIGHT ARM (Draw Hand) -->
+                            <g id="arm-r-grp" transform="translate(-15, -65)">
+                                <path d="M0,0 L5,30 L-5,30 Z" fill="#ffffff" stroke="#ccc" stroke-width="1" />
+                                <g id="fore-r-grp" transform="translate(0, 30)">
+                                    <path d="M0,0 L4,25 L-4,25 Z" fill="#f1c27d" stroke="#dbb070" stroke-width="1" />
+                                    <circle cx="0" cy="28" r="6" fill="#8d6e63" />
                                 </g>
                             </g>
 
                             <!-- Dynamic Strings & Arrow -->
                             <g id="dynamic-visuals">
-                                <path id="anim-string" d="M0,0" class="sk-string" fill="none" />
-                                <line id="anim-arrow-line" x1="0" y1="0" x2="0" y2="0" class="sk-arrow"
-                                    style="display:none" />
+                                <path id="anim-string" d="M0,0" stroke="#fff" stroke-width="1.5" opacity="0.9"
+                                    fill="none" />
+                                <line id="anim-arrow-line" x1="0" y1="0" x2="0" y2="0" stroke="#00ffff" stroke-width="2"
+                                    opacity="0.9" style="display:none" />
                             </g>
                         </g>
                     </g>
@@ -665,21 +674,104 @@
                 const ra = this.lerp(p1.ra, p2.ra, t), rf = this.lerp(p1.rf, p2.rf, t);
                 const bt = this.lerp(p1.bt, p2.bt, t), bb = this.lerp(p1.bb, p2.bb, t);
                 const hx = this.lerp(p1.hx, p2.hx, t);
-                this.el.al.setAttribute('transform', `translate(22,0) rotate(${la})`);
-                this.el.fl.setAttribute('transform', `translate(0,35) rotate(${lf})`);
-                this.el.ar.setAttribute('transform', `translate(-22,0) rotate(${ra})`);
-                this.el.fr.setAttribute('transform', `translate(0,35) rotate(${rf})`);
-                this.el.bowG.setAttribute('transform', `translate(0,30) rotate(${bt})`);
-                this.el.head.setAttribute('transform', `translate(${hx}, -90)`);
+
+                // Update Transforms with new Pivot Points
+                // Left Arm: Pivot at (15, -65) relative to Torso
+                this.el.al.setAttribute('transform', `translate(15, -65) rotate(${la})`);
+                // Left Forearm: Pivot at (0, 30) relative to Upper Arm
+                this.el.fl.setAttribute('transform', `translate(0, 30) rotate(${lf})`);
+
+                // Right Arm: Pivot at (-15, -65) relative to Torso
+                this.el.ar.setAttribute('transform', `translate(-15, -65) rotate(${ra})`);
+                // Right Forearm: Pivot at (0, 30) relative to Upper Arm
+                this.el.fr.setAttribute('transform', `translate(0, 30) rotate(${rf})`);
+
+                // Bow & Head
+                this.el.bowG.setAttribute('transform', `translate(0, 28) rotate(${bt})`);
+                this.el.head.setAttribute('transform', `translate(${hx}, -80)`);
                 this.el.bowP.setAttribute('d', `M0,-130 Q${bb * 1.5},0 0,80`);
+
+                // Kinematics for String & Arrow
                 const r = Math.PI / 180;
-                const lax = 22 - 35 * Math.sin(la * r), lay = 35 * Math.cos(la * r);
-                const lhx = lax - 30 * Math.sin((la + lf) * r), lhy = lay + 30 * Math.cos((la + lf) * r);
-                const rax = -22 - 35 * Math.sin(ra * r), ray = 35 * Math.cos(ra * r);
-                const rhx = rax - 30 * Math.sin((ra + rf) * r), rhy = ray + 30 * Math.cos((ra + rf) * r);
+                // Bone Lengths: Upper=30, Fore=28 (to hand center)
+                // Shoulder Offsets: Left(15, -65), Right(-15, -65)
+
+                // Left Hand Position (Global relative to Torso Group)
+                // L_Shoulder
+                const lsx = 15, lsy = -65;
+                // L_Elbow
+                const lex = lsx + 30 * Math.sin(la * r);
+                const ley = lsy + 30 * Math.cos(la * r); // Note: SVG Y is down, 0 deg is down? No, 0 deg is usually down in this rig logic?
+                // Wait, in previous code: lax = 22 - 35 * sin(la). 
+                // Let's check rotation direction. 
+                // If la = -90 (Left horizontal), sin(-90)=-1. lax = 22 - 35*(-1) = 57. Correct, extends right.
+                // cos(-90)=0. lay = 0.
+                // So 0 deg is DOWN (along +Y).
+                // New rig: Upper Arm is drawn 0,0 to 0,30. So 0 deg is DOWN.
+
+                // Correct Kinematics:
+                // L_Elbow relative to Shoulder: x = -30 * sin(la), y = 30 * cos(la) ??
+                // SVG Rotation: +Angle is CW. 
+                // If la = -90 (CCW 90), arm points Right (+X).
+                // sin(-90) = -1. -30 * -1 = 30. Correct (+X).
+                // cos(-90) = 0. Correct.
+                // So formula: x = -len * sin(a), y = len * cos(a).
+
+                // Let's re-verify old code: lax = 22 - 35 * Math.sin(la * r).
+                // 22 is offset. -35*sin(la). Yes.
+
+                // New L_Elbow (relative to Torso origin 0,0)
+                const lex_t = 15 - 30 * Math.sin(la * r);
+                const ley_t = -65 + 30 * Math.cos(la * r);
+
+                // L_Hand (relative to Torso origin)
+                // Forearm rotation is relative to Upper Arm?
+                // SVG: <g transform="rotate(lf)"> inside <g transform="rotate(la)">
+                // So total angle = la + lf.
+                const lhx = lex_t - 28 * Math.sin((la + lf) * r);
+                const lhy = ley_t + 28 * Math.cos((la + lf) * r);
+
+                // Right Hand Position
+                // R_Shoulder (-15, -65)
+                const rex_t = -15 - 30 * Math.sin(ra * r);
+                const rey_t = -65 + 30 * Math.cos(ra * r);
+
+                const rhx = rex_t - 28 * Math.sin((ra + rf) * r);
+                const rhy = rey_t + 28 * Math.cos((ra + rf) * r);
+
+                // Bow String Anchor Points (relative to Left Hand)
+                // Bow Angle bt is relative to Hand.
+                // Total Bow Angle = la + lf + bt.
                 const bAng = (la + lf + bt) * r;
-                const tx = lhx + 130 * Math.sin(bAng), ty = lhy - 130 * Math.cos(bAng);
-                const bx = lhx - 80 * Math.sin(bAng), by = lhy + 80 * Math.cos(bAng);
+
+                // String Top/Bottom relative to Hand (0, 28 in group -> Hand Center)
+                // Bow path is M0,-130 ... 0,80.
+                // Top tip is at (0, -130) relative to Bow Group.
+                // Bottom tip is at (0, 80) relative to Bow Group.
+                // Bow Group is at (0, 28) relative to Forearm Group.
+                // Hand Center is at (0, 28).
+                // So Top Tip relative to Hand Center: (0, -158)? (-130 - 28 = -158)
+                // Bottom Tip relative to Hand Center: (0, 52)? (80 - 28 = 52)
+
+                // Let's use the Bow Group transform directly.
+                // Bow Group is at lhx, lhy (Hand Center).
+                // We need world coordinates of Top (-130) and Bottom (80) relative to Bow Group origin.
+                // Rotated by bAng.
+
+                // Top Tip (0, -130) in Bow Group
+                // Rotated: x = -(-130)*sin(bAng) = 130*sin, y = -130*cos(bAng)
+                // Wait, standard rotation: x' = x cos - y sin, y' = x sin + y cos.
+                // x=0, y=-130.
+                // x' = 130 sin(bAng)
+                // y' = -130 cos(bAng)
+                // Add to Hand Position (lhx, lhy).
+                const tx = lhx - (-130) * Math.sin(bAng); // +130 sin
+                const ty = lhy + (-130) * Math.cos(bAng); // -130 cos
+
+                // Bottom Tip (0, 80)
+                const bx = lhx - (80) * Math.sin(bAng);
+                const by = lhy + (80) * Math.cos(bAng);
+
                 if (bb > 5) {
                     this.el.arrLine.style.display = 'block';
                     this.el.strPath.setAttribute('d', `M${tx},${ty} L${rhx},${rhy} L${bx},${by}`);
@@ -710,7 +802,7 @@
                 } else if (this.state === 'KAI') {
                     const b = Math.sin(Date.now() / 400) * 2;
                     const pk = this.poses[5];
-                    this.el.ar.setAttribute('transform', `translate(-22,0) rotate(${pk.ra + b / 3})`);
+                    this.el.ar.setAttribute('transform', `translate(-15, -65) rotate(${pk.ra + b / 3})`);
                     this.update(pk, pk, 0);
                 }
                 requestAnimationFrame(() => this.loop());
