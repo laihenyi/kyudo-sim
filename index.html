@@ -968,27 +968,41 @@
                         el.zFace.style.display = 'none';
                         el.zHawk.style.display = 'block';
 
-                        // Hawk-Eye Coordinate System (3D Side-Angle View):
-                        // - This shows both horizontal (left-right) and vertical (up-down) displacement
-                        // - Target center is at (200, 150) in SVG space
-                        // - Target radius in SVG: 18px (representing 18cm in reality)
-                        // - Scale is 1:1 (1cm = 1px) for impact visualization
-                        // - SVG X axis: represents horizontal displacement (left-right miss)
-                        //   - Center (x=200) = target center
-                        // - SVG Y axis: represents vertical displacement (up-down miss)
-                        //   - Center (y=150) = target center height
-                        //   - Down (y=200) = ground level
+                        // Hawk-Eye Coordinate System (Side View - Looking from Archer's Left):
+                        // Physics coordinates (from result function):
+                        //   x: horizontal offset from target center
+                        //      - POSITIVE x = arrow went RIGHT (in archer's view)
+                        //      - NEGATIVE x = arrow went LEFT (in archer's view)
+                        //   y: vertical offset from target center
+                        //      - POSITIVE y = arrow went DOWN
+                        //      - NEGATIVE y = arrow went UP
+                        //
+                        // In side view (looking from left side of range):
+                        //   - We see the azuchi (target bank) face-on
+                        //   - SVG X represents horizontal position on the azuchi
+                        //   - SVG Y represents vertical height
+                        //   - Target center at (200, 150)
+                        //
+                        // CRITICAL: When looking from the LEFT side:
+                        //   - Physics +X (right) appears as DEEPER into azuchi (same X in side view)
+                        //   - Physics -X (left) appears as CLOSER out of azuchi (same X in side view)
+                        //   - But horizontally we see it as LEFT-RIGHT on the target face
+                        //   - So physics X maps DIRECTLY to SVG X offset
                         const scale = 1.0; // 1cm in physics = 1px in display
 
-                        // Impact point coordinates:
-                        // Both X and Y offsets from target center are shown
-                        const hx = 200 + (x * scale); // Horizontal displacement
-                        const hy = 150 + (y * scale); // Vertical displacement
+                        // Impact point coordinates on azuchi face
+                        // IMPORTANT: X needs to be NEGATED because:
+                        // - In main view: positive s.ax = aim right = bx increases
+                        // - But dX = bx - pX where pX=596, bx starts at 300
+                        // - So aiming RIGHT (s.ax positive) makes dX NEGATIVE
+                        // - Therefore we need to flip the sign for correct display
+                        const hx = 200 - (x * scale); // NEGATED: Horizontal position on target
+                        const hy = 150 + (y * scale); // Vertical position on target
 
-                        // Calculate trajectory angle for arrow orientation
-                        // Arrow comes from lower/farther position toward impact point
-                        const sx = 200 - (x * scale * 0.2); // Inverse horizontal offset
-                        const sy = 230; // Below ground representation
+                        // Trajectory starting point
+                        // Arrow comes from shooter position (lower left in this view)
+                        const sx = 200 + (x * scale * 0.2); // Same-direction offset for trajectory perspective
+                        const sy = 230; // Below ground (shooter is farther away)
 
                         // Calculate angle from trajectory
                         const dx = hx - sx;
