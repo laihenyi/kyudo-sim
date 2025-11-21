@@ -999,10 +999,11 @@
                         const hx = 200 - (x * scale); // NEGATED: Horizontal position on target
                         const hy = 150 + (y * scale); // Vertical position on target
 
-                        // Trajectory starting point
-                        // Arrow comes from shooter position (lower left in this view)
-                        const sx = 200 + (x * scale * 0.2); // Same-direction offset for trajectory perspective
-                        const sy = 230; // Below ground (shooter is farther away)
+                        // Trajectory starting point - FIXED POSITION
+                        // In side view, all arrows come from the same shooter position
+                        // Only the impact point (hx, hy) changes based on aim
+                        const sx = 50;  // Fixed: Left side of view (shooter position, 28m away)
+                        const sy = 150; // Fixed: Arrow release height (approximately target height)
 
                         // Calculate angle from trajectory
                         const dx = hx - sx;
