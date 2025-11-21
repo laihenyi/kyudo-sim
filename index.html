@@ -968,23 +968,51 @@
                         el.zFace.style.display = 'none';
                         el.zHawk.style.display = 'block';
 
-                        const scale = 0.4;
+                        // Hawk-Eye Coordinate System:
+                        // - Target center is at (200, 150) in SVG space
+                        // - Target radius in SVG: 18px (representing 18cm in reality)
+                        // - This means the scale is 1:1 (1cm = 1px) for the target visualization
+                        // - X (horizontal): positive = right (same as physics)
+                        // - Y (vertical): In physics, positive Y = down, negative Y = up
+                        //   In SVG side view: target center at y=150, ground at y=200
+                        //   So positive offset = downward = increase Y
+                        const scale = 1.0; // 1cm in physics = 1px in display
+
+                        // X coordinate: target center (200) + horizontal offset
                         const hx = 200 + (x * scale);
+
+                        // Y coordinate: target center (150) + vertical offset
+                        // Physics: positive Y = down, negative Y = up
+                        // SVG: increasing Y = down (150 is center, 200 is ground)
                         const hy = 150 + (y * scale);
 
+                        // Trajectory line: starts from shooter position at ground level
                         const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        const sx = 200 + (x * scale * 0.1);
-                        const sy = 300;
+                        // Shooter is far behind (represented by less horizontal offset)
+                        const sx = 200 + (x * scale * 0.05); // minimal horizontal offset at start
+                        const sy = 200; // ground level (50px below target center)
                         line.setAttribute("d", `M${sx},${sy} L${hx},${hy}`);
                         line.classList.add("traj-line");
                         el.zhHawk.appendChild(line);
 
+                        // Impact marker (cross)
                         const cross = document.createElementNS("http://www.w3.org/2000/svg", "path");
                         cross.setAttribute("d", `M${hx - 5},${hy - 5} L${hx + 5},${hy + 5} M${hx + 5},${hy - 5} L${hx - 5},${hy + 5}`);
                         cross.setAttribute("stroke", c);
                         cross.setAttribute("stroke-width", "3");
                         cross.classList.add("impact-pulse");
                         el.zhHawk.appendChild(cross);
+
+                        // Debug: Add target outline circle for visual reference
+                        const targetOutline = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        targetOutline.setAttribute("cx", 200);
+                        targetOutline.setAttribute("cy", 150);
+                        targetOutline.setAttribute("r", 18); // 18px = 18cm target radius
+                        targetOutline.setAttribute("fill", "none");
+                        targetOutline.setAttribute("stroke", "rgba(0,255,0,0.4)"); // green reference circle
+                        targetOutline.setAttribute("stroke-width", "2");
+                        targetOutline.setAttribute("stroke-dasharray", "4,4");
+                        el.zhHawk.appendChild(targetOutline);
                     }
                 } else {
                     el.zv.style.display = 'none';
