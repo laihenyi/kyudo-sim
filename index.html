@@ -991,12 +991,14 @@
                         const scale = 1.0; // 1cm in physics = 1px in display
 
                         // Impact point coordinates on azuchi face
-                        // IMPORTANT: X needs to be NEGATED because:
-                        // - In main view: positive s.ax = aim right = bx increases
-                        // - But dX = bx - pX where pX=596, bx starts at 300
-                        // - So aiming RIGHT (s.ax positive) makes dX NEGATIVE
-                        // - Therefore we need to flip the sign for correct display
-                        const hx = 200 - (x * scale); // NEGATED: Horizontal position on target
+                        // Coordinate mapping:
+                        // - In main view:靶心在 (600, 380)
+                        // - 落點計算: ex = 600 + dX, 所以 dX = ex - 600
+                        // - dX 正值 = 往右偏, dX 負值 = 往左偏
+                        // - 傳入的 x = dX * PX_TO_CM (已轉換成公分)
+                        // - 在鷹眼視角: 靶心在 (200, 150)
+                        // - 所以: hx = 200 + x (直接對應，正值往右，負值往左)
+                        const hx = 200 + (x * scale); // Horizontal position on target
                         const hy = 150 + (y * scale); // Vertical position on target
 
                         // Trajectory starting point - FIXED POSITION
