@@ -968,40 +968,84 @@
                         el.zFace.style.display = 'none';
                         el.zHawk.style.display = 'block';
 
-                        // Hawk-Eye Coordinate System:
+                        // Hawk-Eye Coordinate System (3D Side-Angle View):
+                        // - This shows both horizontal (left-right) and vertical (up-down) displacement
                         // - Target center is at (200, 150) in SVG space
                         // - Target radius in SVG: 18px (representing 18cm in reality)
-                        // - This means the scale is 1:1 (1cm = 1px) for the target visualization
-                        // - X (horizontal): positive = right (same as physics)
-                        // - Y (vertical): In physics, positive Y = down, negative Y = up
-                        //   In SVG side view: target center at y=150, ground at y=200
-                        //   So positive offset = downward = increase Y
+                        // - Scale is 1:1 (1cm = 1px) for impact visualization
+                        // - SVG X axis: represents horizontal displacement (left-right miss)
+                        //   - Center (x=200) = target center
+                        // - SVG Y axis: represents vertical displacement (up-down miss)
+                        //   - Center (y=150) = target center height
+                        //   - Down (y=200) = ground level
                         const scale = 1.0; // 1cm in physics = 1px in display
 
-                        // X coordinate: target center (200) + horizontal offset
-                        const hx = 200 + (x * scale);
+                        // Impact point coordinates:
+                        // Both X and Y offsets from target center are shown
+                        const hx = 200 + (x * scale); // Horizontal displacement
+                        const hy = 150 + (y * scale); // Vertical displacement
 
-                        // Y coordinate: target center (150) + vertical offset
-                        // Physics: positive Y = down, negative Y = up
-                        // SVG: increasing Y = down (150 is center, 200 is ground)
-                        const hy = 150 + (y * scale);
+                        // Calculate trajectory angle for arrow orientation
+                        // Arrow comes from lower/farther position toward impact point
+                        const sx = 200 - (x * scale * 0.2); // Inverse horizontal offset
+                        const sy = 230; // Below ground representation
 
-                        // Trajectory line: starts from shooter position at ground level
-                        const line = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        // Shooter is far behind (represented by less horizontal offset)
-                        const sx = 200 + (x * scale * 0.05); // minimal horizontal offset at start
-                        const sy = 200; // ground level (50px below target center)
-                        line.setAttribute("d", `M${sx},${sy} L${hx},${hy}`);
-                        line.classList.add("traj-line");
-                        el.zhHawk.appendChild(line);
+                        // Calculate angle from trajectory
+                        const dx = hx - sx;
+                        const dy = hy - sy;
+                        const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Convert to degrees
 
-                        // Impact marker (cross)
-                        const cross = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        cross.setAttribute("d", `M${hx - 5},${hy - 5} L${hx + 5},${hy + 5} M${hx + 5},${hy - 5} L${hx - 5},${hy + 5}`);
-                        cross.setAttribute("stroke", c);
-                        cross.setAttribute("stroke-width", "3");
-                        cross.classList.add("impact-pulse");
-                        el.zhHawk.appendChild(cross);
+                        // Arrow visualization (instead of just a cross)
+                        const arrowGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                        arrowGroup.setAttribute("transform", `translate(${hx}, ${hy}) rotate(${angle})`);
+
+                        // Arrow shaft (horizontal when angle=0)
+                        const shaft = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                        shaft.setAttribute("x1", -25);
+                        shaft.setAttribute("y1", 0);
+                        shaft.setAttribute("x2", 5);
+                        shaft.setAttribute("y2", 0);
+                        shaft.setAttribute("stroke", "#DAA520");
+                        shaft.setAttribute("stroke-width", "3");
+                        shaft.setAttribute("stroke-linecap", "round");
+
+                        // Arrow tip (pointing right when angle=0)
+                        const tip = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        tip.setAttribute("d", "M5,0 L-3,-4 L-1,0 L-3,4 Z");
+                        tip.setAttribute("fill", "#333");
+                        tip.setAttribute("stroke", "#111");
+                        tip.setAttribute("stroke-width", "1");
+
+                        // Arrow fletching (feathers at back)
+                        const fletching = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        fletching.setAttribute("d", "M-20,-3 L-25,0 L-20,3");
+                        fletching.setAttribute("fill", "none");
+                        fletching.setAttribute("stroke", "#e74c3c");
+                        fletching.setAttribute("stroke-width", "2");
+
+                        arrowGroup.appendChild(shaft);
+                        arrowGroup.appendChild(tip);
+                        arrowGroup.appendChild(fletching);
+                        el.zhHawk.appendChild(arrowGroup);
+
+                        // Optional: Add subtle trajectory line for context (faded)
+                        const trajLine = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        trajLine.setAttribute("d", `M${sx},${sy} L${hx},${hy}`);
+                        trajLine.setAttribute("stroke", "rgba(241, 196, 15, 0.3)");
+                        trajLine.setAttribute("stroke-width", "1");
+                        trajLine.setAttribute("stroke-dasharray", "5,5");
+                        el.zhHawk.appendChild(trajLine);
+
+                        // Impact point indicator (small circle)
+                        const impactDot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                        impactDot.setAttribute("cx", hx);
+                        impactDot.setAttribute("cy", hy);
+                        impactDot.setAttribute("r", "3");
+                        impactDot.setAttribute("fill", c);
+                        impactDot.setAttribute("stroke", "#000");
+                        impactDot.setAttribute("stroke-width", "1");
+                        impactDot.classList.add("impact-pulse");
+                        el.zhHawk.appendChild(impactDot);
 
                         // Debug: Add target outline circle for visual reference
                         const targetOutline = document.createElementNS("http://www.w3.org/2000/svg", "circle");

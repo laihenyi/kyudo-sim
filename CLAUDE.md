@@ -32,9 +32,11 @@ Kyudo Simulation (弓道射法模擬) is a web-based Japanese archery (Kyudo) si
 
 **3. Replay System**
 - Two modes:
-  - **Target Face View**: Circular zoom for hits within 18cm (scaled 3.5x)
-  - **Hawk-Eye View**: Rectangular side-view for misses within 5m (0.4 scale)
-- Canvas coordinates: `x * 2` for face view, `x * 0.4` for hawk-eye
+  - **Target Face View**: Circular zoom for hits within 18cm (scaled 2x)
+  - **Hawk-Eye View**: Rectangular 3D angled view for misses within 5m (1:1 scale)
+- Target Face coordinates: `x * 2` (doubled scale)
+- Hawk-Eye coordinates: `x * 1.0` (1cm = 1px, matching target radius of 18px)
+- Hawk-Eye shows actual arrow with angle calculated from trajectory
 - Impact visualization uses separate static dots + animated pulse effects
 
 **4. Sound Engine (`SoundEngine`)**
@@ -89,8 +91,9 @@ python3 -m http.server 8000
 
 ### Adjusting Visual Feedback
 - Replay thresholds: Hit (<18cm), Close Miss (≤500cm) at `index.html:919-937`
-- Zoom scale factors: Face view (3.5x at line 536), Hawk-eye (0.4x at line 971)
+- Zoom scale factors: Face view (2x scaling), Hawk-eye (1:1 scale, 1cm = 1px)
 - Impact animation: `.impact-pulse` keyframes at `index.html:337-360`
+- Hawk-Eye arrow rendering: SVG arrow with trajectory-based rotation (angle calculated via `Math.atan2`)
 
 ### Coordinate Systems
 - **Main SVG viewBox**: 0,0 to 1200,800 (sky at 0-380, ground at 380-800)
