@@ -809,8 +809,9 @@
                 // Grip (Nigiri) - at center (0,0), vertical
                 createPath(this.el.bowGrp, "M-2,-10 L2,-10 L2,10 L-2,10 Z", "#2c3e50");
 
-                // String - will be updated dynamically in update()
-                this.el.strPath = createPath(this.el.bowGrp, "M0,-130 L0,80", "none", "#f0e68c", 3); // Thicker for visibility
+                // String - created in Torso Group (not Bow Group) for correct coordinate system
+                // Will be updated dynamically in update() with global coordinates
+                this.el.strPath = createPath(this.el.torso, "M0,0 L0,0", "none", "#f0e68c", 3); // Thicker for visibility
 
                 // 4. Right Arm Group (Draw Hand) - Should be on LEFT side in mirror view
                 this.el.rArm = createGroup(this.el.torso, -30, -40);
