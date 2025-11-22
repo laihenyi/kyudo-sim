@@ -554,14 +554,19 @@
 
                         <!-- MODE 2: HAWK-EYE (Azuchi/Ground View) -->
                         <g id="z-mode-hawk" style="display:none">
-                            <!-- Background Sky/Wall -->
-                            <rect x="0" y="0" width="400" height="300" fill="#2c3e50" />
+                            <!-- Background Wall (Concrete Grey) -->
+                            <rect x="0" y="0" width="400" height="300" fill="#7f8c8d" />
+                            <!-- Wall Band (Blue/Purple) -->
+                            <rect x="0" y="100" width="400" height="60" fill="#2c2c54" />
+
                             <!-- Ground (Grass) -->
                             <rect x="0" y="200" width="400" height="100" fill="url(#grass)" />
-                            <!-- Azuchi (Sand Bank) -->
-                            <path d="M50,200 L350,200 L380,300 L20,300 Z" fill="#3e2723" opacity="0.5" />
-                            <!-- Shadow -->
-                            <path d="M50,200 L350,200 L350,80 L50,80 Z" fill="url(#azuchiSand)" /> <!-- Bank Face -->
+
+                            <!-- Azuchi (Sand Bank) - Darker -->
+                            <path d="M50,200 L350,200 L380,300 L20,300 Z" fill="#3e2723" opacity="0.8" />
+                            <!-- Shadow/Face -->
+                            <path d="M50,200 L350,200 L350,80 L50,80 Z" fill="url(#azuchiSand)" />
+
                             <!-- Added Grid Lines to Azuchi for depth perception -->
                             <g stroke="rgba(255,255,255,0.15)" stroke-width="1">
                                 <line x1="50" y1="120" x2="350" y2="120" />
@@ -615,14 +620,28 @@
                             <stop offset="100%" style="stop-color:#DAA520; stop-opacity:0.9" />
                         </linearGradient>
                         <linearGradient id="azuchiGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-                            <stop offset="0%" style="stop-color:#5c4033" />
-                            <stop offset="100%" style="stop-color:#8d6e63" />
+                            <stop offset="0%" style="stop-color:#3e2723" />
+                            <stop offset="100%" style="stop-color:#5d4037" />
                         </linearGradient>
+                        <!-- Spotlight Gradient -->
+                        <radialGradient id="spotlight" cx="50%" cy="50%" r="50%" fx="50%" fy="50%">
+                            <stop offset="0%" style="stop-color:rgba(255,255,255,0.2)" />
+                            <stop offset="100%" style="stop-color:rgba(0,0,0,0.3)" />
+                        </radialGradient>
                     </defs>
 
-                    <rect width="1200" height="380" fill="#87CEEB" />
+                    <!-- Background Wall (Concrete Grey) -->
+                    <rect width="1200" height="380" fill="#7f8c8d" />
+                    <!-- Wall Band (Blue/Purple) - Approx 1m high above Azuchi -->
+                    <rect y="280" width="1200" height="100" fill="#2c2c54" />
+
+                    <!-- Azuchi -->
                     <rect y="380" width="1200" height="420" fill="url(#azuchiGrad)" />
-                    <path d="M0,380 L1200,380 L1200,370 L0,370 Z" fill="#3e2723" />
+                    <path d="M0,380 L1200,380 L1200,370 L0,370 Z" fill="#2d1e1b" /> <!-- Darker top edge -->
+
+                    <!-- Spotlight Effect Overlay on Target Area -->
+                    <rect x="400" y="300" width="400" height="200" fill="url(#spotlight)"
+                        style="mix-blend-mode: overlay;" />
 
                     <g id="target-grp" transform="translate(600, 380)">
                         <line x1="-5" y1="5" x2="-7" y2="15" stroke="#333" stroke-width="1" />
