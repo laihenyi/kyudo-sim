@@ -827,7 +827,7 @@
 
                 // Arrow (Attached to Right Hand initially)
                 this.el.arrGrp = createGroup(this.el.rHand, 0, 0);
-                this.el.arrLine = createPath(this.el.arrGrp, "M0,0 L90,0", "none", "#FFD700", 3); // Shaft - gold color, thicker
+                this.el.arrLine = createPath(this.el.arrGrp, "M0,0 L-90,0", "none", "#FFD700", 3); // Shaft - gold color, pointing left toward bow
                 createPath(this.el.arrGrp, "M0,0 L10,0", "none", "#fff", 5); // Feathers (Ya) - thicker
 
                 // Map to keys expected by update()
@@ -946,11 +946,11 @@
                 if (bb > 5) {
                     this.el.arrLine.style.display = 'block';
                     this.el.strPath.setAttribute('d', `M${tx},${ty} L${rhx},${rhy} L${bx},${by}`);
-                    // Arrow points from right hand toward left hand (target direction)
-                    // Calculate angle from right hand to left hand
-                    const arrowAngle = Math.atan2(lhy - rhy, lhx - rhx) * 180 / Math.PI;
+                    // Arrow points from right hand toward left hand (bow/target direction)
+                    // Calculate angle from right hand to left hand and add 180 to point arrow toward bow
+                    const arrowAngle = Math.atan2(lhy - rhy, lhx - rhx) * 180 / Math.PI + 180;
                     this.el.arrGrp.setAttribute('transform', `rotate(${arrowAngle})`);
-                    // Use fixed arrow length (90 pixels) instead of hand-to-hand distance
+                    // Use fixed arrow length (90 pixels)
                     const arrowLength = 90;
                     this.el.arrLine.setAttribute('d', `M0,0 L${arrowLength},0`);
                 } else {
