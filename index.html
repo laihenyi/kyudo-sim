@@ -762,17 +762,17 @@
                 this.el.body = createPath(this.el.torso, "M-30,-50 L30,-50 L35,100 L-35,100 Z", "#ecf0f1");
 
                 // 2.5. Muneate (Chest Protector) - Female archer
-                // Positioned on left chest area, white with visible border
-                this.el.muneate = createPath(this.el.torso, "M-25,-20 Q-10,-25 5,-15 L5,20 Q-10,25 -25,20 Z", "#ffffff");
+                // Positioned on left chest area, white with visible border, rounded shape
+                this.el.muneate = createPath(this.el.torso, "M-28,-15 Q-15,-20 -5,-15 Q0,0 -5,15 Q-15,20 -28,15 Z", "#ffffff");
                 this.el.muneate.setAttribute("stroke", "#bdc3c7");
                 this.el.muneate.setAttribute("stroke-width", "2");
 
                 // 3. Hakama (Lower garment) - Now relative to Torso
-                // Hakama starts at bottom of Gi (y=100) and extends down
-                this.el.lLeg = createPath(this.el.torso, "M-30,100 L-40,150", "none", "#2c3e50", 20);
-                this.el.rLeg = createPath(this.el.torso, "M30,100 L40,150", "none", "#2c3e50", 20);
+                // Hakama starts at bottom of Gi (y=100) and extends down to feet (y=200)
+                this.el.lLeg = createPath(this.el.torso, "M-30,100 L-40,200", "none", "#2c3e50", 20);
+                this.el.rLeg = createPath(this.el.torso, "M30,100 L40,200", "none", "#2c3e50", 20);
                 // Hakama Skirt
-                this.el.hakama = createPath(this.el.torso, "M-40,100 L40,100 L50,150 L-50,150 Z", "#2c3e50");
+                this.el.hakama = createPath(this.el.torso, "M-40,100 L40,100 L50,200 L-50,200 Z", "#2c3e50");
 
                 // Head Group (Relative to Torso)
                 this.el.headGrp = createGroup(this.el.torso, 0, -60);
@@ -789,15 +789,15 @@
                 createPath(this.el.headGrp, "M-18,-15 Q-22,-5 -18,0", "none", "#2c3e50", 2);
                 createPath(this.el.headGrp, "M18,-15 Q22,-5 18,0", "none", "#2c3e50", 2);
 
-                // 3. Left Arm Group (Shoulder Pivot)
-                this.el.lArm = createGroup(this.el.torso, -30, -40);
+                // 3. Left Arm Group (Bow Hand) - Should be on RIGHT side in mirror view
+                this.el.lArm = createGroup(this.el.torso, 30, -40);
                 // Sleeve (Gi)
                 this.el.lSleeve = createPath(this.el.lArm, "M0,0 L-30,10 L-25,40 L5,30 Z", "#ecf0f1");
                 // Forearm (Skin)
-                this.el.lForearm = createGroup(this.el.lArm, -30, 10); // Elbow pivot
-                createPath(this.el.lForearm, "M0,0 L-50,0", "none", "#f1c27d", 12); // Arm segment
-                // Glove/Hand (Yugake - Purple/Brown)
-                this.el.lHand = createGroup(this.el.lForearm, -50, 0); // Wrist pivot
+                this.el.lForearm = createGroup(this.el.lArm, 30, 10); // Elbow pivot
+                createPath(this.el.lForearm, "M0,0 L50,0", "none", "#f1c27d", 12); // Arm segment extends right
+                // Glove/Hand (Yugake)
+                this.el.lHand = createGroup(this.el.lForearm, 50, 0); // Wrist pivot
                 createCircle(this.el.lHand, -5, 0, 7, "#8b4513"); // Brown glove (Yugake)
 
                 // Bow Group (Attached to Left Hand)
@@ -810,18 +810,18 @@
                 // Positioned at center (0,0) of Bow Group
                 createPath(this.el.bowGrp, "M-2,-10 L2,-10 L2,10 L-2,10 Z", "#2c3e50"); // Black grip
 
-                // String
-                this.el.strPath = createPath(this.el.bowGrp, "M0,-130 L0,80", "none", "#fff", 1);
+                // String (make it visible with thicker line and contrasting color)
+                this.el.strPath = createPath(this.el.bowGrp, "M0,-130 L0,80", "none", "#f0e68c", 2); // Light yellow, thicker
 
-                // 4. Right Arm Group (Shoulder Pivot)
-                this.el.rArm = createGroup(this.el.torso, 30, -40);
+                // 4. Right Arm Group (Draw Hand) - Should be on LEFT side in mirror view
+                this.el.rArm = createGroup(this.el.torso, -30, -40);
                 // Sleeve
                 this.el.rSleeve = createPath(this.el.rArm, "M0,0 L30,10 L25,40 L-5,30 Z", "#ecf0f1");
                 // Forearm
-                this.el.rForearm = createGroup(this.el.rArm, 30, 10); // Elbow pivot
-                createPath(this.el.rForearm, "M0,0 L50,0", "none", "#f1c27d", 12);
+                this.el.rForearm = createGroup(this.el.rArm, -30, 10); // Elbow pivot
+                createPath(this.el.rForearm, "M0,0 L-50,0", "none", "#f1c27d", 12); // Arm segment extends left
                 // Glove/Hand (Yugake - Brown)
-                this.el.rHand = createGroup(this.el.rForearm, 50, 0);
+                this.el.rHand = createGroup(this.el.rForearm, -50, 0);
                 createCircle(this.el.rHand, 5, 0, 8, "#d35400"); // Brown glove
                 // Thumb (Torikake) - NEW: Visual Thumb
                 createPath(this.el.rHand, "M0,0 L10,5", "none", "#d35400", 5);
@@ -860,15 +860,16 @@
                 const hx = this.lerp(p1.hx, p2.hx, t);
 
                 // Update Transforms with new Pivot Points
-                // Left Arm: Pivot at (-30, -40) relative to Torso
-                this.el.al.setAttribute('transform', `translate(-30, -40) rotate(${la})`);
-                // Left Forearm: Pivot at (-30, 10) relative to Upper Arm
-                this.el.fl.setAttribute('transform', `translate(-30, 10) rotate(${lf})`);
+                // SWAPPED: Left (bow) on right, Right (draw) on left
+                // Left Arm: Pivot at (30, -40) relative to Torso
+                this.el.al.setAttribute('transform', `translate(30, -40) rotate(${la})`);
+                // Left Forearm: Pivot at (30, 10) relative to Upper Arm
+                this.el.fl.setAttribute('transform', `translate(30, 10) rotate(${lf})`);
 
-                // Right Arm: Pivot at (30, -40) relative to Torso
-                this.el.ar.setAttribute('transform', `translate(30, -40) rotate(${ra})`);
-                // Right Forearm: Pivot at (30, 10) relative to Upper Arm
-                this.el.fr.setAttribute('transform', `translate(30, 10) rotate(${rf})`);
+                // Right Arm: Pivot at (-30, -40) relative to Torso
+                this.el.ar.setAttribute('transform', `translate(-30, -40) rotate(${ra})`);
+                // Right Forearm: Pivot at (-30, 10) relative to Upper Arm
+                this.el.fr.setAttribute('transform', `translate(-30, 10) rotate(${rf})`);
 
                 // Bow & Head
                 // Bow & Head
@@ -894,27 +895,28 @@
                 // Kinematics for String & Arrow
                 const r = Math.PI / 180;
                 // Bone Lengths: Upper arm to elbow, Forearm to hand
-                // Shoulder Offsets: Left(-30, -40), Right(30, -40) relative to torso center (0,0)
-                // Elbow offset from shoulder: (-30, 10) and (30, 10)
-                // Hand offset from elbow: (-50, 0) and (50, 0)
+                // SWAPPED for mirror view: Left (bow) on right, Right (draw) on left
+                // Shoulder Offsets: Left(30, -40), Right(-30, -40) relative to torso center (0,0)
+                // Elbow offset from shoulder: (30, 10) and (-30, 10)
+                // Hand offset from elbow: (50, 0) and (-50, 0)
 
-                // Left Hand Position (Global relative to Torso Group)
-                const lsx = -30, lsy = -40; // Shoulder pivot (matches init)
-                // Upper arm: from shoulder to elbow at (-30, 10) relative to shoulder
-                const lex_t = lsx + (-30) * Math.cos(la * r) - 10 * Math.sin(la * r);
-                const ley_t = lsy + (-30) * Math.sin(la * r) + 10 * Math.cos(la * r);
+                // Left Hand Position (Bow Hand - on RIGHT side in mirror view)
+                const lsx = 30, lsy = -40; // Shoulder pivot (matches init)
+                // Upper arm: from shoulder to elbow at (30, 10) relative to shoulder
+                const lex_t = lsx + 30 * Math.cos(la * r) - 10 * Math.sin(la * r);
+                const ley_t = lsy + 30 * Math.sin(la * r) + 10 * Math.cos(la * r);
 
-                // Forearm: from elbow to hand at (-50, 0) relative to elbow
-                const lhx = lex_t + (-50) * Math.cos((la + lf) * r);
-                const lhy = ley_t + (-50) * Math.sin((la + lf) * r);
+                // Forearm: from elbow to hand at (50, 0) relative to elbow
+                const lhx = lex_t + 50 * Math.cos((la + lf) * r);
+                const lhy = ley_t + 50 * Math.sin((la + lf) * r);
 
-                // Right Hand Position
-                const rsx = 30, rsy = -40; // Shoulder pivot (matches init)
-                const rex_t = rsx + 30 * Math.cos(ra * r) - 10 * Math.sin(ra * r);
-                const rey_t = rsy + 30 * Math.sin(ra * r) + 10 * Math.cos(ra * r);
+                // Right Hand Position (Draw Hand - on LEFT side in mirror view)
+                const rsx = -30, rsy = -40; // Shoulder pivot (matches init)
+                const rex_t = rsx + (-30) * Math.cos(ra * r) - 10 * Math.sin(ra * r);
+                const rey_t = rsy + (-30) * Math.sin(ra * r) + 10 * Math.cos(ra * r);
 
-                const rhx = rex_t + 50 * Math.cos((ra + rf) * r);
-                const rhy = rey_t + 50 * Math.sin((ra + rf) * r);
+                const rhx = rex_t + (-50) * Math.cos((ra + rf) * r);
+                const rhy = rey_t + (-50) * Math.sin((ra + rf) * r);
 
                 // Bow String Anchor Points (Tips)
                 // Need to rotate (tipDisp, -130) and (tipDisp, 80) by bAng
