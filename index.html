@@ -946,16 +946,13 @@
                 if (bb > 5) {
                     this.el.arrLine.style.display = 'block';
                     this.el.strPath.setAttribute('d', `M${tx},${ty} L${rhx},${rhy} L${bx},${by}`);
-                    // Arrow is attached to right hand, so its coordinates are relative to the hand.
-                    // The arrow line is drawn from the right hand to the bow string.
-                    // For simplicity, we'll draw it from the right hand to the left hand (bow grip)
-                    // and let the bow string handle the actual string path.
-                    // The arrow itself is a path within the arrGrp, which is within rHand.
-                    // We need to rotate the arrow group to align with the string.
-                    // The arrow points from the right hand towards the left hand.
+                    // Arrow points from right hand toward left hand (target direction)
+                    // Calculate angle from right hand to left hand
                     const arrowAngle = Math.atan2(lhy - rhy, lhx - rhx) * 180 / Math.PI;
                     this.el.arrGrp.setAttribute('transform', `rotate(${arrowAngle})`);
-                    this.el.arrLine.setAttribute('d', `M0,0 L${Math.sqrt(Math.pow(lhx - rhx, 2) + Math.pow(lhy - rhy, 2))},0`);
+                    // Use fixed arrow length (90 pixels) instead of hand-to-hand distance
+                    const arrowLength = 90;
+                    this.el.arrLine.setAttribute('d', `M0,0 L${arrowLength},0`);
                 } else {
                     this.el.arrLine.style.display = 'none';
                     this.el.strPath.setAttribute('d', `M${tx},${ty} L${bx},${by}`);
