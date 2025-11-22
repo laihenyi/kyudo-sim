@@ -766,24 +766,41 @@
                 // So Top Tip relative to Hand Center: (0, -158)? (-130 - 28 = -158)
                 // Bottom Tip relative to Hand Center: (0, 52)? (80 - 28 = 52)
 
-                // Let's use the Bow Group transform directly.
-                // Bow Group is at lhx, lhy (Hand Center).
-                // We need world coordinates of Top (-130) and Bottom (80) relative to Bow Group origin.
-                // Rotated by bAng.
+                // Bow Bending Logic
+                // We want the Grip (center) to stay at (0,0) in Bow Group space.
+                // The Tips should move backwards (Negative X in Bow space) as the bow bends.
+                // Bow Space: X points Left (Target), Y points Up.
+                // Pulling string moves tips to the Right (Negative X).
+                // Curve Control Point moves Left (Positive X) to keep curve passing through 0,0.
 
-                // Top Tip (0, -130) in Bow Group
-                // Rotated: x = -(-130)*sin(bAng) = 130*sin, y = -130*cos(bAng)
-                // Wait, standard rotation: x' = x cos - y sin, y' = x sin + y cos.
-                // x=0, y=-130.
-                // x' = 130 sin(bAng)
-                // y' = -130 cos(bAng)
-                // Add to Hand Position (lhx, lhy).
-                const tx = lhx - (-130) * Math.sin(bAng); // +130 sin
-                const ty = lhy + (-130) * Math.cos(bAng); // -130 cos
+                // Calculate Tip Displacement based on bb (Bow Bend)
+                // bb is approx displacement in pixels.
+                const tipDisp = -bb; // Tips move back
+                const ctrlDisp = bb; // Control point moves forward
 
-                // Bottom Tip (0, 80)
-                const bx = lhx - (80) * Math.sin(bAng);
-                const by = lhy + (80) * Math.cos(bAng);
+                // Update Bow Path
+                // Top Tip: (tipDisp, -130), Ctrl: (ctrlDisp, 0), Bottom Tip: (tipDisp, 80)
+                this.el.bowP.setAttribute('d', `M${tipDisp},-130 Q${ctrlDisp},0 ${tipDisp},80`);
+
+                // Update String Attachment Points (Tips)
+                // Need to rotate (tipDisp, -130) and (tipDisp, 80) by bAng
+                // Rotation Formula: x' = x cos - y sin, y' = x sin + y cos
+                const cosB = Math.cos(bAng);
+                const sinB = Math.sin(bAng);
+
+                // Top Tip (tx, ty)
+                const t_lx = tipDisp; const t_ly = -130;
+                const t_rx = t_lx * cosB - t_ly * sinB;
+                const t_ry = t_lx * sinB + t_ly * cosB;
+                const tx = lhx + t_rx;
+                const ty = lhy + t_ry;
+
+                // Bottom Tip (bx, by)
+                const b_lx = tipDisp; const b_ly = 80;
+                const b_rx = b_lx * cosB - b_ly * sinB;
+                const b_ry = b_lx * sinB + b_ly * cosB;
+                const bx = lhx + b_rx;
+                const by = lhy + b_ry;
 
                 if (bb > 5) {
                     this.el.arrLine.style.display = 'block';
