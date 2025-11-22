@@ -893,24 +893,28 @@
 
                 // Kinematics for String & Arrow
                 const r = Math.PI / 180;
-                // Bone Lengths: Upper=50, Fore=50 (to hand center)
-                // Shoulder Offsets: Left(-35, -40), Right(35, -40) relative to torso center (0,0)
+                // Bone Lengths: Upper arm to elbow, Forearm to hand
+                // Shoulder Offsets: Left(-30, -40), Right(30, -40) relative to torso center (0,0)
+                // Elbow offset from shoulder: (-30, 10) and (30, 10)
+                // Hand offset from elbow: (-50, 0) and (50, 0)
 
                 // Left Hand Position (Global relative to Torso Group)
-                const lsx = -35, lsy = -40; // Shoulder pivot
-                const lex_t = lsx + 50 * Math.cos((la + 90) * r); // Upper arm length 50, rotated from vertical
-                const ley_t = lsy + 50 * Math.sin((la + 90) * r);
+                const lsx = -30, lsy = -40; // Shoulder pivot (matches init)
+                // Upper arm: from shoulder to elbow at (-30, 10) relative to shoulder
+                const lex_t = lsx + (-30) * Math.cos(la * r) - 10 * Math.sin(la * r);
+                const ley_t = lsy + (-30) * Math.sin(la * r) + 10 * Math.cos(la * r);
 
-                const lhx = lex_t + 50 * Math.cos((la + lf + 90) * r); // Forearm length 50
-                const lhy = ley_t + 50 * Math.sin((la + lf + 90) * r);
+                // Forearm: from elbow to hand at (-50, 0) relative to elbow
+                const lhx = lex_t + (-50) * Math.cos((la + lf) * r);
+                const lhy = ley_t + (-50) * Math.sin((la + lf) * r);
 
                 // Right Hand Position
-                const rsx = 35, rsy = -40; // Shoulder pivot
-                const rex_t = rsx + 50 * Math.cos((ra + 90) * r);
-                const rey_t = rsy + 50 * Math.sin((ra + 90) * r);
+                const rsx = 30, rsy = -40; // Shoulder pivot (matches init)
+                const rex_t = rsx + 30 * Math.cos(ra * r) - 10 * Math.sin(ra * r);
+                const rey_t = rsy + 30 * Math.sin(ra * r) + 10 * Math.cos(ra * r);
 
-                const rhx = rex_t + 50 * Math.cos((ra + rf + 90) * r);
-                const rhy = rey_t + 50 * Math.sin((ra + rf + 90) * r);
+                const rhx = rex_t + 50 * Math.cos((ra + rf) * r);
+                const rhy = rey_t + 50 * Math.sin((ra + rf) * r);
 
                 // Bow String Anchor Points (Tips)
                 // Need to rotate (tipDisp, -130) and (tipDisp, 80) by bAng
