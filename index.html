@@ -946,12 +946,12 @@
                     p += 0.15;
                     const cx = sx + (ex - sx) * p, cy = sy + (ey - sy) * p, r = 3 - 2 * p;
                     el.fly.setAttribute('cx', cx); el.fly.setAttribute('cy', cy); el.fly.setAttribute('r', r);
-                    if (p < 1) requestAnimationFrame(fLoop); else result(dX * PX_TO_CM, dY * PX_TO_CM);
+                    if (p < 1) requestAnimationFrame(fLoop); else result(dX * PX_TO_CM, dY * PX_TO_CM, drop * PX_TO_CM);
                 }
                 fLoop();
             }
 
-            function result(x, y) {
+            function result(x, y, dropCm = 100) {
                 const distCm = Math.sqrt(x * x + y * y);
                 let txt = "外 (Hazure)", c = "#e74c3c";
                 let showReplay = false;
@@ -1030,7 +1030,10 @@
                         // Control Point: Higher than both to simulate arc (Gravity Drop)
                         // If arrow hits low (positive y), arc needs to be higher.
                         // We use a fixed "Loft" based on distance.
-                        const loft = 100; // Height of the arc peak relative to straight line
+                        // Physics: Peak of parabola is 1/4 of total drop.
+                        // dropCm is the total drop in cm.
+                        // scale is 1px/cm.
+                        const loft = Math.max((dropCm / 4) * scale, 5); // Minimum 5px for visibility
                         const cx = (sx + hx) / 2;
                         const cy = Math.min(sy, hy) - loft;
 
