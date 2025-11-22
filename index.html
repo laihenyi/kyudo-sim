@@ -704,17 +704,22 @@
                 // To show Yugamae explicitly, we might need an intermediate step,
                 // but for now let's make Dozukuri (1) look like the Yugamae preparation.
                 // Actually, let's make 2 be the TOP of Uchiokoshi.
-                { la: -45, lf: 0, ra: 45, rf: 0, bt: 0, bb: 0, hx: 0 },
-                // 3: Daisan (Big Three) - Left arm pushes, Right arm pulls slightly
-                { la: -70, lf: 10, ra: 20, rf: 90, bt: 10, bb: 10, hx: 2 },
-                // 4: Hikiwake (Drawing) - Arms spread, bow bends
-                { la: -85, lf: 5, ra: 40, rf: 140, bt: 5, bb: 40, hx: 5 },
+                // 2: Uchiokoshi (Raising) - Hands high, symmetrical (~45 deg)
+                { la: -50, lf: 0, ra: 50, rf: 0, bt: 0, bb: 0, hx: 0 },
+                // 3: Daisan (Big Three) - Transition to draw
+                // Left arm moves to target, Right hand to forehead
+                { la: -60, lf: 10, ra: 20, rf: 90, bt: 10, bb: 10, hx: 2 },
+                // 4: Hikiwake (Drawing) - Mid-draw
+                // Left arm pushing, Right elbow high, string pulled back
+                { la: -75, lf: 10, ra: 40, rf: 120, bt: 5, bb: 40, hx: 5 },
                 // 5: Kai (Full Draw) - Max extension
-                { la: -95, lf: 0, ra: 45, rf: 160, bt: 0, bb: 65, hx: 8 },
+                // Left arm horizontal (-90), Right elbow back (line of shoulders)
+                { la: -90, lf: 0, ra: 20, rf: 160, bt: 0, bb: 65, hx: 8 },
                 // 6: Hanare (Release) - Arms fly apart
-                { la: -100, lf: 0, ra: -20, rf: 160, bt: -20, bb: 0, hx: 8 },
+                // Chest expands, arms move horizontally outwards
+                { la: -100, lf: 0, ra: -30, rf: 170, bt: -20, bb: 0, hx: 8 },
                 // 7: Zanshin (Remaining Form) - Hold
-                { la: -100, lf: 0, ra: -25, rf: 160, bt: -30, bb: 0, hx: 8 }
+                { la: -100, lf: 0, ra: -30, rf: 170, bt: -30, bb: 0, hx: 8 }
             ],
             init() {
                 this.el = {
