@@ -106,3 +106,113 @@ python3 -m http.server 8000
 
 本專案為開源教育用途，歡迎學習與改進。
 
+---
+
+# Kyudo Simulation (English)
+
+This is a web-based Kyudo (Japanese Archery) simulation designed to simulate the "Shaho Hassetsu" (Eight Stages of Shooting) and the shooting experience.
+
+## ✨ Features
+
+*   **Shaho Hassetsu Simulation**: Fully demonstrates the eight stages of shooting from Ashibumi to Zanshin.
+*   **Visual Upgrades**:
+    *   **Vector Style Archer**: Features traditional Kyudo attire (Gi, Hakama, Tabi) and detailed equipment (Bamboo Bow, Yugake).
+    *   **Realistic Dojo Scene**: Includes Azuchi (sand bank), target spotlight, and detailed dojo walls.
+*   **Physics Simulation**:
+    *   Adjustable Bow Power (10-30 kg) and Arrow Weight (20-35 g).
+    *   **Realistic Ballistics**: Dynamic parabolic trajectory calculation based on energy conservation and gravity.
+    *   **Breath Simulation**: Adjustable aiming sway caused by breathing (0-15).
+*   **Visual Feedback**:
+    *   **Main View**: Simulates the archer's first-person perspective.
+    *   **SVG Animation Pane**: Displays the archer's skeleton and motion details on the left, including realistic Tenouchi (grip) dynamics.
+    *   **Replay System**:
+        *   **Target Close-up**: Shows the impact point on the target face when the arrow hits or is close.
+        *   **Hawk-Eye View**: Displays a 3D parabolic trajectory from the **shooter's perspective** when the arrow misses but is within range, with the arc dynamically driven by the physics engine.
+*   **Audio System**: Includes sound feedback for shooting and hitting the target.
+
+## 🎮 Operation Guide
+
+1.  **Startup Process**:
+    *   Upon opening the page, the left panel displays the progress of "Shaho Hassetsu".
+    *   The system automatically demonstrates the movements until it enters the **"Kai"** stage.
+
+2.  **Aiming and Shooting**:
+    *   When entering the "Kai" stage, the **[Hanare]** button will light up and flash.
+    *   **Aiming**:
+        *   Use **Arrow Keys (↑ ↓ ← →)** to fine-tune the sight position.
+        *   Or use **Mouse/Touch** to drag the screen for aiming.
+    *   **Shooting**:
+        *   Press **Spacebar** or click the **[Hanare]** button.
+
+3.  **Parameter Adjustment**:
+    *   Adjustable in real-time via the left panel:
+        *   **Bow Power (10-30 kg)**: Affects initial velocity and range.
+        *   **Arrow Weight (20-35 g)**: Affects trajectory drop.
+        *   **Azuke (Horizontal Aim)**: Horizontal aiming offset.
+        *   **Height (Vertical Aim)**: Vertical aiming offset.
+        *   **Breath (0-15)**: Simulates the intensity of sway caused by breathing.
+
+4.  **Result Judgment**:
+    *   **Kaichū (All Hit)!!** - Within 5cm of the center (Yellow).
+    *   **Atari (Hit)!** - Within 18cm of the target face (Green).
+    *   **Zannen (Regret)** - Missed but within 5m range (Grey).
+    *   **Out of Range** - Completely out of range.
+
+5.  **Restart**:
+    *   After shooting, press **Spacebar** or **Enter** to restart the Shaho Hassetsu process.
+
+## 🎯 Gameplay Tips
+
+*   **Aiming Essentials**:
+    *   The target center is located slightly to the right of the screen center, approximately on the horizontal line of the sight.
+    *   Higher breath amplitude makes aiming more difficult; beginners are advised to start with low values.
+    *   Long-press arrow keys for continuous movement, suitable for large adjustments.
+
+*   **Physics Parameter Suggestions**:
+    *   **Standard Setting**: 15kg Bow, 28g Arrow (Close to actual Kyudo equipment).
+    *   **High Arc**: Increase arrow weight or decrease bow power to observe the parabolic trajectory.
+    *   **Long Range Mode**: Max bow power 30kg, lightest arrow 20g.
+
+*   **Replay System Observation**:
+    *   **Target Close-up** is shown on hit to observe the impact point.
+    *   **Hawk-Eye View** is shown on miss to visualize the side trajectory and landing point.
+
+## 🚀 Quick Start
+
+```bash
+# Method 1: Open HTML file directly
+open index.html
+
+# Method 2: Use local server (Recommended)
+python3 -m http.server 8000
+# Then open http://localhost:8000 in your browser
+```
+
+## 📱 Device Support
+
+*   **Desktop Browser**: Full experience, Chrome, Firefox, Safari, or Edge recommended.
+*   **Mobile Device**: Supports touch operation and responsive layout.
+*   **Audio**: Requires user interaction to start (Browser security policy).
+
+## 🎨 Technical Features
+
+*   **Pure Frontend Implementation**: No backend server or build tools required.
+*   **SVG Vector Animation**: Smooth archer motion demonstration (ANKF standard posture).
+*   **Real Physics Engine**: Ballistics calculation based on energy conservation and parabolic motion, **driving visual trajectory in real-time**.
+*   **Web Audio**: Procedurally generated sound effects, no external audio files needed.
+
+## 📝 Shaho Hassetsu (Eight Stages)
+
+1.  **Ashibumi** - Footing
+2.  **Dōzukuri** - Correcting the Posture
+3.  **Uchiokoshi** - Raising the Bow
+4.  **Daisan** - Drawing the Bow (Third Stage)
+5.  **Hikiwake** - Drawing Apart
+6.  **Kai** - Full Draw (Ready to shoot)
+7.  **Hanare** - Release
+8.  **Zanshin** - Remaining Form / Continuation
+
+## 📄 License
+
+This project is for open-source educational purposes. Learning and improvement are welcome.
+
