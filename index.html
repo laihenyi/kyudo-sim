@@ -722,14 +722,112 @@
                 { la: -100, lf: 0, ra: -30, rf: 170, bt: -30, bb: 0, hx: 8 }
             ],
             init() {
-                this.el = {
-                    al: document.getElementById('arm-l-grp'), fl: document.getElementById('fore-l-grp'),
-                    ar: document.getElementById('arm-r-grp'), fr: document.getElementById('fore-r-grp'),
-                    bowG: document.getElementById('bow-grp'), bowP: document.getElementById('anim-bow'),
-                    strPath: document.getElementById('anim-string'), arrLine: document.getElementById('anim-arrow-line'),
-                    txt: document.getElementById('phase-indicator'), head: document.getElementById('head-grp')
+                const svg = document.getElementById('archer-svg');
+                svg.innerHTML = ''; // Clear existing content
+
+                // Helper Functions
+                const createPath = (parent, d, fill, stroke, width) => {
+                    const p = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                    p.setAttribute("d", d);
+                    if (fill) p.setAttribute("fill", fill);
+                    if (stroke) { p.setAttribute("stroke", stroke); p.setAttribute("stroke-width", width || 1); }
+                    parent.appendChild(p);
+                    return p;
                 };
-                this.reset(); this.loop();
+                const createGroup = (parent, x, y) => {
+                    const g = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                    g.setAttribute("transform", `translate(${x},${y})`);
+                    parent.appendChild(g);
+                    return g;
+                };
+                const createCircle = (parent, cx, cy, r, fill) => {
+                    const c = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                    c.setAttribute("cx", cx); c.setAttribute("cy", cy); c.setAttribute("r", r);
+                    c.setAttribute("fill", fill);
+                    parent.appendChild(c);
+                    return c;
+                };
+
+                // We will build the structure:
+                // Root -> TorsoGrp -> [Head, Body, Skirt]
+                //      -> L_ArmGrp -> [L_Sleeve, L_Forearm, L_Hand, Bow]
+                //      -> R_ArmGrp -> [R_Sleeve, R_Forearm, R_Hand, Arrow]
+                //      -> Legs (Static/Base)
+
+                // 1. Legs (Hakama - Lower Part)
+                this.el.lLeg = createPath(svg, "M-30,150 L-40,300", "none", "#2c3e50", 20);
+                this.el.rLeg = createPath(svg, "M30,150 L40,300", "none", "#2c3e50", 20);
+                // Hakama Skirt
+                this.el.hakama = createPath(svg, "M-40,150 L40,150 L50,300 L-50,300 Z", "#2c3e50");
+
+                // 2. Torso Group
+                this.el.torso = createGroup(svg, 300, 250); // Center of body
+
+                // Body (Gi - White)
+                this.el.body = createPath(this.el.torso, "M-30,-50 L30,-50 L35,100 L-35,100 Z", "#ecf0f1");
+
+                // Head Group (Relative to Torso)
+                this.el.headGrp = createGroup(this.el.torso, 0, -60);
+                // Neck
+                createPath(this.el.headGrp, "M-10,0 L10,0 L10,15 L-10,15 Z", "#f1c27d");
+                // Face
+                this.el.head = createCircle(this.el.headGrp, 0, -15, 20, "#f1c27d");
+                // Hair (Simple Black)
+                createPath(this.el.headGrp, "M-20,-20 Q0,-40 20,-20 L20,-10 L-20,-10 Z", "#2c3e50");
+
+                // 3. Left Arm Group (Shoulder Pivot)
+                this.el.lArm = createGroup(this.el.torso, -30, -40);
+                // Sleeve (Gi)
+                this.el.lSleeve = createPath(this.el.lArm, "M0,0 L-30,10 L-25,40 L5,30 Z", "#ecf0f1");
+                // Forearm (Skin)
+                this.el.lForearm = createGroup(this.el.lArm, -30, 10); // Elbow pivot
+                createPath(this.el.lForearm, "M0,0 L-50,0", "none", "#f1c27d", 12); // Arm segment
+                // Glove/Hand (Yugake - Purple/Brown)
+                this.el.lHand = createGroup(this.el.lForearm, -50, 0); // Wrist pivot
+                createCircle(this.el.lHand, -5, 0, 7, "#8e44ad"); // Purple glove (common)
+
+                // Bow Group (Attached to Left Hand)
+                this.el.bowGrp = createGroup(this.el.lHand, 0, 0);
+                // Bow Body (Bamboo Texture)
+                // Simple curve for now, will be bent in update
+                this.el.bowP = createPath(this.el.bowGrp, "M0,-130 Q0,0 0,80", "none", "#d35400", 4);
+
+                // Grip (Nigiri) - NEW: Visual Grip Element
+                // Positioned at center (0,0) of Bow Group
+                createPath(this.el.bowGrp, "M-2,-10 L2,-10 L2,10 L-2,10 Z", "#2c3e50"); // Black grip
+
+                // String
+                this.el.strPath = createPath(this.el.bowGrp, "M0,-130 L0,80", "none", "#fff", 1);
+
+                // 4. Right Arm Group (Shoulder Pivot)
+                this.el.rArm = createGroup(this.el.torso, 30, -40);
+                // Sleeve
+                this.el.rSleeve = createPath(this.el.rArm, "M0,0 L30,10 L25,40 L-5,30 Z", "#ecf0f1");
+                // Forearm
+                this.el.rForearm = createGroup(this.el.rArm, 30, 10); // Elbow pivot
+                createPath(this.el.rForearm, "M0,0 L50,0", "none", "#f1c27d", 12);
+                // Glove/Hand (Yugake - Brown)
+                this.el.rHand = createGroup(this.el.rForearm, 50, 0);
+                createCircle(this.el.rHand, 5, 0, 8, "#d35400"); // Brown glove
+                // Thumb (Torikake) - NEW: Visual Thumb
+                createPath(this.el.rHand, "M0,0 L10,5", "none", "#d35400", 5);
+
+                // Arrow (Attached to Right Hand initially)
+                this.el.arrGrp = createGroup(this.el.rHand, 0, 0);
+                this.el.arrLine = createPath(this.el.arrGrp, "M0,0 L-90,0", "none", "#bdc3c7", 2); // Shaft
+                createPath(this.el.arrGrp, "M0,0 L10,0", "none", "#fff", 4); // Feathers (Ya)
+
+                // Map to keys expected by update()
+                this.el.al = this.el.lArm;
+                this.el.fl = this.el.lForearm;
+                this.el.ar = this.el.rArm;
+                this.el.fr = this.el.rForearm;
+                this.el.bowG = this.el.bowGrp;
+                this.el.head = this.el.headGrp; // Group
+                this.el.txt = document.getElementById('phase-indicator');
+
+                // Initial Pose Update
+                this.update(this.poses[0], this.poses[0], 0);
             },
             reset() {
                 this.state = 'ANIMATING'; this.stage = 0; this.progress = 0;
