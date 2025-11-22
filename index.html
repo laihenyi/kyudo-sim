@@ -752,19 +752,27 @@
                 // Root -> TorsoGrp -> [Head, Body, Skirt]
                 //      -> L_ArmGrp -> [L_Sleeve, L_Forearm, L_Hand, Bow]
                 //      -> R_ArmGrp -> [R_Sleeve, R_Forearm, R_Hand, Arrow]
+                //      -> R_ArmGrp -> [R_Sleeve, R_Forearm, R_Hand, Arrow]
                 //      -> Legs (Static/Base)
 
-                // 1. Legs (Hakama - Lower Part)
-                this.el.lLeg = createPath(svg, "M-30,150 L-40,300", "none", "#2c3e50", 20);
-                this.el.rLeg = createPath(svg, "M30,150 L40,300", "none", "#2c3e50", 20);
-                // Hakama Skirt
-                this.el.hakama = createPath(svg, "M-40,150 L40,150 L50,300 L-50,300 Z", "#2c3e50");
-
-                // 2. Torso Group
+                // 1. Torso Group (Create first so we can add children to it)
                 this.el.torso = createGroup(svg, 150, 200); // Center of viewBox (300x300)
 
-                // Body (Gi - White)
+                // 2. Body (Gi - White)
                 this.el.body = createPath(this.el.torso, "M-30,-50 L30,-50 L35,100 L-35,100 Z", "#ecf0f1");
+
+                // 2.5. Muneate (Chest Protector) - Female archer
+                // Positioned on left chest area, white with visible border
+                this.el.muneate = createPath(this.el.torso, "M-25,-20 Q-10,-25 5,-15 L5,20 Q-10,25 -25,20 Z", "#ffffff");
+                this.el.muneate.setAttribute("stroke", "#bdc3c7");
+                this.el.muneate.setAttribute("stroke-width", "2");
+
+                // 3. Hakama (Lower garment) - Now relative to Torso
+                // Hakama starts at bottom of Gi (y=100) and extends down
+                this.el.lLeg = createPath(this.el.torso, "M-30,100 L-40,150", "none", "#2c3e50", 20);
+                this.el.rLeg = createPath(this.el.torso, "M30,100 L40,150", "none", "#2c3e50", 20);
+                // Hakama Skirt
+                this.el.hakama = createPath(this.el.torso, "M-40,100 L40,100 L50,150 L-50,150 Z", "#2c3e50");
 
                 // Head Group (Relative to Torso)
                 this.el.headGrp = createGroup(this.el.torso, 0, -60);
@@ -772,8 +780,14 @@
                 createPath(this.el.headGrp, "M-10,0 L10,0 L10,15 L-10,15 Z", "#f1c27d");
                 // Face
                 this.el.head = createCircle(this.el.headGrp, 0, -15, 20, "#f1c27d");
-                // Hair (Simple Black)
+                // Hair (Female style with bun)
+                // Main hair
                 createPath(this.el.headGrp, "M-20,-20 Q0,-40 20,-20 L20,-10 L-20,-10 Z", "#2c3e50");
+                // Hair bun (back of head)
+                createCircle(this.el.headGrp, 0, -30, 8, "#2c3e50");
+                // Side hair strands
+                createPath(this.el.headGrp, "M-18,-15 Q-22,-5 -18,0", "none", "#2c3e50", 2);
+                createPath(this.el.headGrp, "M18,-15 Q22,-5 18,0", "none", "#2c3e50", 2);
 
                 // 3. Left Arm Group (Shoulder Pivot)
                 this.el.lArm = createGroup(this.el.torso, -30, -40);
@@ -784,7 +798,7 @@
                 createPath(this.el.lForearm, "M0,0 L-50,0", "none", "#f1c27d", 12); // Arm segment
                 // Glove/Hand (Yugake - Purple/Brown)
                 this.el.lHand = createGroup(this.el.lForearm, -50, 0); // Wrist pivot
-                createCircle(this.el.lHand, -5, 0, 7, "#8e44ad"); // Purple glove (common)
+                createCircle(this.el.lHand, -5, 0, 7, "#8b4513"); // Brown glove (Yugake)
 
                 // Bow Group (Attached to Left Hand)
                 this.el.bowGrp = createGroup(this.el.lHand, 0, 0);
