@@ -504,8 +504,8 @@
                 <input type="range" id="i-ax" min="-100" max="600" value="280">
                 <label>上下 (Height) <span id="d-ay">0</span></label>
                 <input type="range" id="i-ay" min="-200" max="200" value="0">
-                <label>呼吸震幅 (Breath) <span id="d-br">2</span></label>
-                <input type="range" id="i-br" min="0" max="15" value="2" step="1">
+                <label>呼吸震幅 (Breath) <span id="d-br">15</span></label>
+                <input type="range" id="i-br" min="0" max="15" value="15" step="1">
             </div>
             <button id="btn-shoot" disabled>發 射 (Hanare)</button>
             <div style="margin-top:auto; text-align:center; font-size:0.75rem; color:#888; line-height: 1.6;">
@@ -1012,101 +1012,130 @@
                         el.zFace.style.display = 'none';
                         el.zHawk.style.display = 'block';
 
-                        // Hawk-Eye Coordinate System (Side View - Looking from Archer's Left):
-                        // Physics coordinates (from result function):
-                        //   x: horizontal offset from target center
-                        //      - POSITIVE x = arrow went RIGHT (in archer's view)
-                        //      - NEGATIVE x = arrow went LEFT (in archer's view)
-                        //   y: vertical offset from target center
-                        //      - POSITIVE y = arrow went DOWN
-                        //      - NEGATIVE y = arrow went UP
-                        //
-                        // In side view (looking from left side of range):
-                        //   - We see the azuchi (target bank) face-on
-                        //   - SVG X represents horizontal position on the azuchi
-                        //   - SVG Y represents vertical height
-                        //   - Target center at (200, 150)
-                        //
-                        // CRITICAL: When looking from the LEFT side:
-                        //   - Physics +X (right) appears as DEEPER into azuchi (same X in side view)
-                        //   - Physics -X (left) appears as CLOSER out of azuchi (same X in side view)
-                        //   - But horizontally we see it as LEFT-RIGHT on the target face
-                        //   - So physics X maps DIRECTLY to SVG X offset
-                        const scale = 1.0; // 1cm in physics = 1px in display
+                        // Hawk-Eye Perspective: Shooter's View (From Behind/Bottom)
+                        // Origin: Bottom Center (Shooter) -> Target (Depth)
 
-                        // Impact point coordinates on azuchi face
-                        // Coordinate mapping:
-                        // - In main view:靶心在 (600, 380)
-                        // - 落點計算: ex = 600 + dX, 所以 dX = ex - 600
-                        // - dX 正值 = 往右偏, dX 負值 = 往左偏
-                        // - 傳入的 x = dX * PX_TO_CM (已轉換成公分)
-                        // - 在鷹眼視角: 靶心在 (200, 150)
-                        // - 所以: hx = 200 + x (直接對應，正值往右，負值往左)
-                        const hx = 200 + (x * scale); // Horizontal position on target
-                        const hy = 150 + (y * scale); // Vertical position on target
+                        const scale = 1.0; // 1cm = 1px
+                        // Impact Point on Target Face (hx, hy)
+                        // Target Center is at (200, 150)
+                        const hx = 200 + (x * scale);
+                        const hy = 150 + (y * scale);
 
-                        // Trajectory starting point - FIXED POSITION
-                        // In side view, all arrows come from the same shooter position
-                        // Only the impact point (hx, hy) changes based on aim
-                        const sx = 50;  // Fixed: Left side of view (shooter position, 28m away)
-                        const sy = 150; // Fixed: Arrow release height (approximately target height)
+                        // Shooter Position (Start of Trajectory)
+                        // Fixed at bottom center of the view
+                        const sx = 200;
+                        const sy = 350; // Below the visible area to simulate coming from "us"
 
-                        // Calculate angle from trajectory
-                        const dx = hx - sx;
-                        const dy = hy - sy;
-                        const angle = Math.atan2(dy, dx) * (180 / Math.PI); // Convert to degrees
+                        // Trajectory Path (Quadratic Bezier)
+                        // Control Point: Higher than both to simulate arc (Gravity Drop)
+                        // If arrow hits low (positive y), arc needs to be higher.
+                        // We use a fixed "Loft" based on distance.
+                        const loft = 100; // Height of the arc peak relative to straight line
+                        const cx = (sx + hx) / 2;
+                        const cy = Math.min(sy, hy) - loft;
 
-                        // Arrow visualization (instead of just a cross)
+                        // 1. Draw Trajectory Line (Trace)
+                        const trajPath = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        const d = `M${sx},${sy} Q${cx},${cy} ${hx},${hy}`;
+                        trajPath.setAttribute("d", d);
+                        trajPath.setAttribute("fill", "none");
+                        trajPath.setAttribute("stroke", "rgba(241, 196, 15, 0.6)");
+                        trajPath.setAttribute("stroke-width", "2");
+                        trajPath.setAttribute("stroke-dasharray", "1000");
+                        trajPath.setAttribute("stroke-dashoffset", "1000");
+                        // Animate Trace
+                        const animTrace = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+                        animTrace.setAttribute("attributeName", "stroke-dashoffset");
+                        animTrace.setAttribute("from", "1000");
+                        animTrace.setAttribute("to", "0");
+                        animTrace.setAttribute("dur", "0.6s");
+                        animTrace.setAttribute("fill", "freeze");
+                        animTrace.setAttribute("calcMode", "spline");
+                        animTrace.setAttribute("keySplines", "0.25 0.1 0.25 1"); // Ease-out
+                        trajPath.appendChild(animTrace);
+                        el.zhHawk.appendChild(trajPath);
+
+                        // 2. Animate Arrow Flying
                         const arrowGroup = document.createElementNS("http://www.w3.org/2000/svg", "g");
-                        arrowGroup.setAttribute("transform", `translate(${hx}, ${hy}) rotate(${angle})`);
 
-                        // Arrow shaft (horizontal when angle=0)
+                        // Arrow Visuals (Simple Shaft + Fletching)
+                        // Pointing UP/INTO screen (Vertical in local space)
+                        const arrowVis = document.createElementNS("http://www.w3.org/2000/svg", "g");
+                        // Shaft
                         const shaft = document.createElementNS("http://www.w3.org/2000/svg", "line");
-                        shaft.setAttribute("x1", -25);
-                        shaft.setAttribute("y1", 0);
-                        shaft.setAttribute("x2", 5);
-                        shaft.setAttribute("y2", 0);
-                        shaft.setAttribute("stroke", "#DAA520");
-                        shaft.setAttribute("stroke-width", "3");
-                        shaft.setAttribute("stroke-linecap", "round");
+                        shaft.setAttribute("x1", 0); shaft.setAttribute("y1", 20);
+                        shaft.setAttribute("x2", 0); shaft.setAttribute("y2", -20);
+                        shaft.setAttribute("stroke", "#DAA520"); shaft.setAttribute("stroke-width", "4");
+                        // Fletching
+                        const fletch = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                        fletch.setAttribute("d", "M-5,20 L0,30 L5,20");
+                        fletch.setAttribute("fill", "white");
+                        arrowVis.appendChild(shaft); arrowVis.appendChild(fletch);
+                        arrowGroup.appendChild(arrowVis);
 
-                        // Arrow tip (pointing right when angle=0)
-                        const tip = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        tip.setAttribute("d", "M5,0 L-3,-4 L-1,0 L-3,4 Z");
-                        tip.setAttribute("fill", "#333");
-                        tip.setAttribute("stroke", "#111");
-                        tip.setAttribute("stroke-width", "1");
+                        // Motion Path Animation
+                        const mPath = document.createElementNS("http://www.w3.org/2000/svg", "animateMotion");
+                        mPath.setAttribute("dur", "0.6s");
+                        mPath.setAttribute("fill", "freeze");
+                        mPath.setAttribute("rotate", "auto"); // Follow path tangent
+                        mPath.setAttribute("calcMode", "spline");
+                        mPath.setAttribute("keySplines", "0.25 0.1 0.25 1");
 
-                        // Arrow fletching (feathers at back)
-                        const fletching = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        fletching.setAttribute("d", "M-20,-3 L-25,0 L-20,3");
-                        fletching.setAttribute("fill", "none");
-                        fletching.setAttribute("stroke", "#ffffff");
-                        fletching.setAttribute("stroke-width", "2");
+                        const mPathRef = document.createElementNS("http://www.w3.org/2000/svg", "mpath");
+                        // We need to reference the path. Since we can't easily use ID in shadow DOM or dynamic, 
+                        // we'll create a defs path or just use the path data if supported, 
+                        // but animateMotion needs an mpath with href to an ID.
+                        // Let's generate a unique ID.
+                        const pathId = "traj-" + Math.random().toString(36).substr(2, 9);
+                        trajPath.setAttribute("id", pathId);
+                        mPathRef.setAttribute("href", "#" + pathId);
+                        mPath.appendChild(mPathRef);
+                        arrowGroup.appendChild(mPath);
 
-                        arrowGroup.appendChild(shaft);
-                        arrowGroup.appendChild(tip);
-                        arrowGroup.appendChild(fletching);
+                        // Scale Animation (Perspective: Large -> Small)
+                        const animScale = document.createElementNS("http://www.w3.org/2000/svg", "animateTransform");
+                        animScale.setAttribute("attributeName", "transform");
+                        animScale.setAttribute("type", "scale");
+                        animScale.setAttribute("from", "2.0"); // Start big (close)
+                        animScale.setAttribute("to", "0.4");   // End small (far)
+                        animScale.setAttribute("dur", "0.6s");
+                        animScale.setAttribute("fill", "freeze");
+                        // Note: animateTransform overwrites other transforms, so we wrap arrowVis
+                        arrowVis.appendChild(animScale);
+
+                        // Opacity Animation (Fade In)
+                        const animOp = document.createElementNS("http://www.w3.org/2000/svg", "animate");
+                        animOp.setAttribute("attributeName", "opacity");
+                        animOp.setAttribute("from", "0");
+                        animOp.setAttribute("to", "1");
+                        animOp.setAttribute("dur", "0.1s");
+                        animOp.setAttribute("fill", "freeze");
+                        arrowGroup.appendChild(animOp);
+
                         el.zhHawk.appendChild(arrowGroup);
 
-                        // Optional: Add subtle trajectory line for context (faded)
-                        const trajLine = document.createElementNS("http://www.w3.org/2000/svg", "path");
-                        trajLine.setAttribute("d", `M${sx},${sy} L${hx},${hy}`);
-                        trajLine.setAttribute("stroke", "rgba(241, 196, 15, 0.3)");
-                        trajLine.setAttribute("stroke-width", "1");
-                        trajLine.setAttribute("stroke-dasharray", "5,5");
-                        el.zhHawk.appendChild(trajLine);
+                        // Impact Marker (Delayed)
+                        setTimeout(() => {
+                            // 1. Permanent Hit Marker
+                            const hit = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            hit.setAttribute("cx", hx); hit.setAttribute("cy", hy);
+                            hit.setAttribute("r", 3);
+                            hit.setAttribute("fill", c);
+                            hit.setAttribute("stroke", "#fff");
+                            hit.setAttribute("stroke-width", "1");
+                            el.zhHawk.appendChild(hit);
 
-                        // Impact point indicator (small circle)
-                        const impactDot = document.createElementNS("http://www.w3.org/2000/svg", "circle");
-                        impactDot.setAttribute("cx", hx);
-                        impactDot.setAttribute("cy", hy);
-                        impactDot.setAttribute("r", "3");
-                        impactDot.setAttribute("fill", c);
-                        impactDot.setAttribute("stroke", "#000");
-                        impactDot.setAttribute("stroke-width", "1");
-                        impactDot.classList.add("impact-pulse");
-                        el.zhHawk.appendChild(impactDot);
+                            // 2. Pulse Effect
+                            const pulse = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                            pulse.setAttribute("cx", hx); pulse.setAttribute("cy", hy);
+                            pulse.setAttribute("r", 3);
+                            pulse.setAttribute("fill", c);
+                            pulse.classList.add("impact-pulse");
+                            el.zhHawk.appendChild(pulse);
+
+                            // Hide arrow after hit (it sticks in target)
+                            arrowGroup.style.display = 'none';
+                        }, 600);
 
                         // Debug: Add target outline circle for visual reference
                         const targetOutline = document.createElementNS("http://www.w3.org/2000/svg", "circle");
