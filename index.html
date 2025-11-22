@@ -693,24 +693,28 @@
                 // la: Left Arm, lf: Left Forearm, ra: Right Arm, rf: Right Forearm
                 // bt: Bow Tilt, bb: Bow Bend, hx: Head X Offset
 
-                // 1. Ashibumi (Footing) - Arms down, relaxed
-                { la: -10, lf: 0, ra: 10, rf: 0, bt: 10, bb: 0, hx: 0 },
-                // 2. Dozukuri (Forming Torso) - Hands to hips/knees
-                { la: -15, lf: 15, ra: 15, rf: -15, bt: 15, bb: 0, hx: 0 },
-                // 3. Uchiokoshi (Raising) - 45 degrees exactly
-                { la: -45, lf: 0, ra: 45, rf: 0, bt: 45, bb: 0, hx: 0 },
-                // 4. Daisan (Big Three) - Left pushes, Right folds
-                // Left arm straightens towards target (~-60), Right elbow folds
-                { la: -60, lf: 0, ra: 100, rf: 90, bt: 60, bb: 20, hx: 2 },
-                // 5. Hikiwake (Drawing) - Expansion
-                { la: -80, lf: 0, ra: 125, rf: 140, bt: 80, bb: 60, hx: 5 },
-                // 6. Kai (Full Draw) - Horizontal Left (-90), Right Elbow back
-                // Right forearm aligns with arrow line
-                { la: -90, lf: 0, ra: 135, rf: 160, bt: 90, bb: 90, hx: 8 },
-                // 7. Hanare (Release) - Chest expands, arms fly apart
-                { la: -100, lf: 10, ra: 160, rf: 170, bt: 100, bb: 0, hx: 8 },
-                // 8. Zanshin (Remaining Spirit) - Hold finish
-                { la: -100, lf: 10, ra: 160, rf: 170, bt: 100, bb: 0, hx: 8 }
+                // 0: Ashibumi (Footing) - Wide stance, bow low, hands at sides/hips
+                { la: -20, lf: 10, ra: 20, rf: 10, bt: -10, bb: 0, hx: 0 },
+                // 1: Dozukuri (Posture) - Hands at hips, bow vertical, settling
+                { la: -30, lf: 40, ra: 30, rf: 40, bt: 0, bb: 0, hx: 0 },
+                // 2: Yugamae -> Uchiokoshi (Raising)
+                // Starts at Yugamae (Hands at waist, setting grip), then raises.
+                // We set the target pose for Uchiokoshi (45 degrees).
+                // The transition from 1->2 will show the raise.
+                // To show Yugamae explicitly, we might need an intermediate step,
+                // but for now let's make Dozukuri (1) look like the Yugamae preparation.
+                // Actually, let's make 2 be the TOP of Uchiokoshi.
+                { la: -45, lf: 0, ra: 45, rf: 0, bt: 0, bb: 0, hx: 0 },
+                // 3: Daisan (Big Three) - Left arm pushes, Right arm pulls slightly
+                { la: -70, lf: 10, ra: 20, rf: 90, bt: 10, bb: 10, hx: 2 },
+                // 4: Hikiwake (Drawing) - Arms spread, bow bends
+                { la: -85, lf: 5, ra: 40, rf: 140, bt: 5, bb: 40, hx: 5 },
+                // 5: Kai (Full Draw) - Max extension
+                { la: -95, lf: 0, ra: 45, rf: 160, bt: 0, bb: 65, hx: 8 },
+                // 6: Hanare (Release) - Arms fly apart
+                { la: -100, lf: 0, ra: -20, rf: 160, bt: -20, bb: 0, hx: 8 },
+                // 7: Zanshin (Remaining Form) - Hold
+                { la: -100, lf: 0, ra: -25, rf: 160, bt: -30, bb: 0, hx: 8 }
             ],
             init() {
                 this.el = {
@@ -746,44 +750,9 @@
                 this.el.fr.setAttribute('transform', `translate(0, 32) rotate(${rf})`);
 
                 // Bow & Head
-                this.el.bowG.setAttribute('transform', `translate(0, 29) rotate(${bt})`);
-                this.el.head.setAttribute('transform', `translate(${hx}, -82)`);
-                this.el.bowP.setAttribute('d', `M0,-130 Q${bb * 1.5},0 0,80`);
-
-                // Kinematics for String & Arrow
-                const r = Math.PI / 180;
-                // Bone Lengths: Upper=32, Fore=29 (to hand center)
-                // Shoulder Offsets: Left(18, -68), Right(-18, -68)
-
-                // Left Hand Position (Global relative to Torso Group)
-                const lsx = 18, lsy = -68;
-                const lex_t = lsx - 32 * Math.sin(la * r);
-                const ley_t = lsy + 32 * Math.cos(la * r);
-
-                const lhx = lex_t - 29 * Math.sin((la + lf) * r);
-                const lhy = ley_t + 29 * Math.cos((la + lf) * r);
-
-                // Right Hand Position
-                const rsx = -18, rsy = -68;
-                const rex_t = rsx - 32 * Math.sin(ra * r);
-                const rey_t = rsy + 32 * Math.cos(ra * r);
-
-                const rhx = rex_t - 29 * Math.sin((ra + rf) * r);
-                const rhy = rey_t + 29 * Math.cos((ra + rf) * r);
-
-                // Bow String Anchor Points (relative to Left Hand)
-                // Bow Angle bt is relative to Hand.
-                // Total Bow Angle = la + lf + bt.
-                const bAng = (la + lf + bt) * r;
-
-                // String Top/Bottom relative to Hand (0, 28 in group -> Hand Center)
-                // Bow path is M0,-130 ... 0,80.
-                // Top tip is at (0, -130) relative to Bow Group.
-                // Bottom tip is at (0, 80) relative to Bow Group.
-                // Bow Group is at (0, 28) relative to Forearm Group.
-                // Hand Center is at (0, 28).
-                // So Top Tip relative to Hand Center: (0, -158)? (-130 - 28 = -158)
-                // Bottom Tip relative to Hand Center: (0, 52)? (80 - 28 = 52)
+                // Bow & Head
+                this.el.bowG.setAttribute('transform', `translate(0, 0) rotate(${bt})`);
+                this.el.head.setAttribute('transform', `translate(${hx}, -60)`);
 
                 // Bow Bending Logic
                 // We want the Grip (center) to stay at (0,0) in Bow Group space.
@@ -801,21 +770,48 @@
                 // Top Tip: (tipDisp, -130), Ctrl: (ctrlDisp, 0), Bottom Tip: (tipDisp, 80)
                 this.el.bowP.setAttribute('d', `M${tipDisp},-130 Q${ctrlDisp},0 ${tipDisp},80`);
 
-                // Update String Attachment Points (Tips)
+                // Kinematics for String & Arrow
+                const r = Math.PI / 180;
+                // Bone Lengths: Upper=50, Fore=50 (to hand center)
+                // Shoulder Offsets: Left(-35, -40), Right(35, -40) relative to torso center (0,0)
+
+                // Left Hand Position (Global relative to Torso Group)
+                const lsx = -35, lsy = -40; // Shoulder pivot
+                const lex_t = lsx + 50 * Math.cos((la + 90) * r); // Upper arm length 50, rotated from vertical
+                const ley_t = lsy + 50 * Math.sin((la + 90) * r);
+
+                const lhx = lex_t + 50 * Math.cos((la + lf + 90) * r); // Forearm length 50
+                const lhy = ley_t + 50 * Math.sin((la + lf + 90) * r);
+
+                // Right Hand Position
+                const rsx = 35, rsy = -40; // Shoulder pivot
+                const rex_t = rsx + 50 * Math.cos((ra + 90) * r);
+                const rey_t = rsy + 50 * Math.sin((ra + 90) * r);
+
+                const rhx = rex_t + 50 * Math.cos((ra + rf + 90) * r);
+                const rhy = rey_t + 50 * Math.sin((ra + rf + 90) * r);
+
+                // Bow String Anchor Points (Tips)
                 // Need to rotate (tipDisp, -130) and (tipDisp, 80) by bAng
+                // Bow is attached to left hand, so its rotation is relative to the hand.
+                // The bow's rotation `bt` is applied to the bow group.
+                // The hand's rotation is `la + lf`.
+                // Total Bow Angle = (la + lf) + bt.
+                const bAng = (la + lf + bt) * r; // Total angle of the bow relative to horizontal
+
                 // Rotation Formula: x' = x cos - y sin, y' = x sin + y cos
                 const cosB = Math.cos(bAng);
                 const sinB = Math.sin(bAng);
 
-                // Top Tip (tx, ty)
-                const t_lx = tipDisp; const t_ly = -130;
+                // Top Tip (tx, ty) relative to torso origin
+                const t_lx = tipDisp; const t_ly = -130; // Bow local coordinates
                 const t_rx = t_lx * cosB - t_ly * sinB;
                 const t_ry = t_lx * sinB + t_ly * cosB;
                 const tx = lhx + t_rx;
                 const ty = lhy + t_ry;
 
-                // Bottom Tip (bx, by)
-                const b_lx = tipDisp; const b_ly = 80;
+                // Bottom Tip (bx, by) relative to torso origin
+                const b_lx = tipDisp; const b_ly = 80; // Bow local coordinates
                 const b_rx = b_lx * cosB - b_ly * sinB;
                 const b_ry = b_lx * sinB + b_ly * cosB;
                 const bx = lhx + b_rx;
@@ -824,8 +820,16 @@
                 if (bb > 5) {
                     this.el.arrLine.style.display = 'block';
                     this.el.strPath.setAttribute('d', `M${tx},${ty} L${rhx},${rhy} L${bx},${by}`);
-                    this.el.arrLine.setAttribute('x1', rhx); this.el.arrLine.setAttribute('y1', rhy);
-                    this.el.arrLine.setAttribute('x2', lhx); this.el.arrLine.setAttribute('y2', lhy);
+                    // Arrow is attached to right hand, so its coordinates are relative to the hand.
+                    // The arrow line is drawn from the right hand to the bow string.
+                    // For simplicity, we'll draw it from the right hand to the left hand (bow grip)
+                    // and let the bow string handle the actual string path.
+                    // The arrow itself is a path within the arrGrp, which is within rHand.
+                    // We need to rotate the arrow group to align with the string.
+                    // The arrow points from the right hand towards the left hand.
+                    const arrowAngle = Math.atan2(lhy - rhy, lhx - rhx) * 180 / Math.PI;
+                    this.el.arrGrp.setAttribute('transform', `rotate(${arrowAngle})`);
+                    this.el.arrLine.setAttribute('d', `M0,0 L${Math.sqrt(Math.pow(lhx - rhx, 2) + Math.pow(lhy - rhy, 2))},0`);
                 } else {
                     this.el.arrLine.style.display = 'none';
                     this.el.strPath.setAttribute('d', `M${tx},${ty} L${bx},${by}`);
@@ -851,7 +855,7 @@
                 } else if (this.state === 'KAI') {
                     const b = Math.sin(Date.now() / 400) * 2;
                     const pk = this.poses[5];
-                    this.el.ar.setAttribute('transform', `translate(-18, -68) rotate(${pk.ra + b / 3})`);
+                    this.el.ar.setAttribute('transform', `translate(35, -40) rotate(${pk.ra + b / 3})`); // Adjusted pivot for new model
                     this.update(pk, pk, 0);
                 }
                 requestAnimationFrame(() => this.loop());
