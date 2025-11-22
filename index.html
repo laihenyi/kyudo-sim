@@ -828,6 +828,10 @@
 
                 // Initial Pose Update
                 this.update(this.poses[0], this.poses[0], 0);
+
+                // Start animation loop
+                this.reset();
+                this.loop();
             },
             reset() {
                 this.state = 'ANIMATING'; this.stage = 0; this.progress = 0;
@@ -842,15 +846,15 @@
                 const hx = this.lerp(p1.hx, p2.hx, t);
 
                 // Update Transforms with new Pivot Points
-                // Left Arm: Pivot at (18, -68) relative to Torso
-                this.el.al.setAttribute('transform', `translate(18, -68) rotate(${la})`);
-                // Left Forearm: Pivot at (0, 32) relative to Upper Arm
-                this.el.fl.setAttribute('transform', `translate(0, 32) rotate(${lf})`);
+                // Left Arm: Pivot at (-30, -40) relative to Torso
+                this.el.al.setAttribute('transform', `translate(-30, -40) rotate(${la})`);
+                // Left Forearm: Pivot at (-30, 10) relative to Upper Arm
+                this.el.fl.setAttribute('transform', `translate(-30, 10) rotate(${lf})`);
 
-                // Right Arm: Pivot at (-18, -68) relative to Torso
-                this.el.ar.setAttribute('transform', `translate(-18, -68) rotate(${ra})`);
-                // Right Forearm: Pivot at (0, 32) relative to Upper Arm
-                this.el.fr.setAttribute('transform', `translate(0, 32) rotate(${rf})`);
+                // Right Arm: Pivot at (30, -40) relative to Torso
+                this.el.ar.setAttribute('transform', `translate(30, -40) rotate(${ra})`);
+                // Right Forearm: Pivot at (30, 10) relative to Upper Arm
+                this.el.fr.setAttribute('transform', `translate(30, 10) rotate(${rf})`);
 
                 // Bow & Head
                 // Bow & Head
