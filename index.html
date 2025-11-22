@@ -792,37 +792,36 @@
                 // 3. Left Arm Group (Bow Hand) - Should be on RIGHT side in mirror view
                 this.el.lArm = createGroup(this.el.torso, 30, -40);
                 // Sleeve (Gi)
-                this.el.lSleeve = createPath(this.el.lArm, "M0,0 L-30,10 L-25,40 L5,30 Z", "#ecf0f1");
+                this.el.lSleeve = createPath(this.el.lArm, "M0,0 L30,10 L25,40 L-5,30 Z", "#ecf0f1");
                 // Forearm (Skin)
                 this.el.lForearm = createGroup(this.el.lArm, 30, 10); // Elbow pivot
                 createPath(this.el.lForearm, "M0,0 L50,0", "none", "#f1c27d", 12); // Arm segment extends right
                 // Glove/Hand (Yugake)
                 this.el.lHand = createGroup(this.el.lForearm, 50, 0); // Wrist pivot
-                createCircle(this.el.lHand, -5, 0, 7, "#8b4513"); // Brown glove (Yugake)
+                createCircle(this.el.lHand, 5, 0, 7, "#8b4513"); // Brown glove (Yugake)
 
                 // Bow Group (Attached to Left Hand)
                 this.el.bowGrp = createGroup(this.el.lHand, 0, 0);
-                // Bow Body (Bamboo Texture)
-                // Simple curve for now, will be bent in update
-                this.el.bowP = createPath(this.el.bowGrp, "M0,-130 Q0,0 0,80", "none", "#d35400", 4);
+                // Bow Body - HORIZONTAL for mirror view (pointing right)
+                // Bow extends from left (-130) to right (80) in local space
+                this.el.bowP = createPath(this.el.bowGrp, "M-130,0 Q0,0 80,0", "none", "#d35400", 4);
 
-                // Grip (Nigiri) - NEW: Visual Grip Element
-                // Positioned at center (0,0) of Bow Group
-                createPath(this.el.bowGrp, "M-2,-10 L2,-10 L2,10 L-2,10 Z", "#2c3e50"); // Black grip
+                // Grip (Nigiri) - at center (0,0)
+                createPath(this.el.bowGrp, "M-10,-2 L-10,2 L10,2 L10,-2 Z", "#2c3e50"); // Horizontal grip
 
-                // String (make it visible with thicker line and contrasting color)
-                this.el.strPath = createPath(this.el.bowGrp, "M0,-130 L0,80", "none", "#f0e68c", 2); // Light yellow, thicker
+                // String - HORIZONTAL
+                this.el.strPath = createPath(this.el.bowGrp, "M-130,0 L80,0", "none", "#f0e68c", 2); // Light yellow, thicker
 
                 // 4. Right Arm Group (Draw Hand) - Should be on LEFT side in mirror view
                 this.el.rArm = createGroup(this.el.torso, -30, -40);
                 // Sleeve
-                this.el.rSleeve = createPath(this.el.rArm, "M0,0 L30,10 L25,40 L-5,30 Z", "#ecf0f1");
+                this.el.rSleeve = createPath(this.el.rArm, "M0,0 L-30,10 L-25,40 L5,30 Z", "#ecf0f1");
                 // Forearm
                 this.el.rForearm = createGroup(this.el.rArm, -30, 10); // Elbow pivot
                 createPath(this.el.rForearm, "M0,0 L-50,0", "none", "#f1c27d", 12); // Arm segment extends left
                 // Glove/Hand (Yugake - Brown)
                 this.el.rHand = createGroup(this.el.rForearm, -50, 0);
-                createCircle(this.el.rHand, 5, 0, 8, "#d35400"); // Brown glove
+                createCircle(this.el.rHand, -5, 0, 8, "#d35400"); // Brown glove
                 // Thumb (Torikake) - NEW: Visual Thumb
                 createPath(this.el.rHand, "M0,0 L10,5", "none", "#d35400", 5);
 
@@ -876,21 +875,21 @@
                 this.el.bowG.setAttribute('transform', `translate(0, 0) rotate(${bt})`);
                 this.el.head.setAttribute('transform', `translate(${hx}, -60)`);
 
-                // Bow Bending Logic
-                // We want the Grip (center) to stay at (0,0) in Bow Group space.
-                // The Tips should move backwards (Negative X in Bow space) as the bow bends.
-                // Bow Space: X points Left (Target), Y points Up.
-                // Pulling string moves tips to the Right (Negative X).
-                // Curve Control Point moves Left (Positive X) to keep curve passing through 0,0.
+                // Bow Bending Logic - HORIZONTAL BOW
+                // Grip (center) stays at (0,0) in Bow Group space.
+                // Tips move UP/DOWN (Y direction) as the bow bends.
+                // Bow Space: X points Right (Target), Y points Up.
+                // Pulling string moves tips BACK (Positive Y).
+                // Curve Control Point moves FORWARD (Negative Y) to keep curve passing through 0,0.
 
                 // Calculate Tip Displacement based on bb (Bow Bend)
                 // bb is approx displacement in pixels.
-                const tipDisp = -bb; // Tips move back
-                const ctrlDisp = bb; // Control point moves forward
+                const tipDisp = bb; // Tips move back (up in Y)
+                const ctrlDisp = -bb; // Control point moves forward (down in Y)
 
-                // Update Bow Path
-                // Top Tip: (tipDisp, -130), Ctrl: (ctrlDisp, 0), Bottom Tip: (tipDisp, 80)
-                this.el.bowP.setAttribute('d', `M${tipDisp},-130 Q${ctrlDisp},0 ${tipDisp},80`);
+                // Update Bow Path - HORIZONTAL
+                // Left Tip: (-130, tipDisp), Ctrl: (0, ctrlDisp), Right Tip: (80, tipDisp)
+                this.el.bowP.setAttribute('d', `M-130,${tipDisp} Q0,${ctrlDisp} 80,${tipDisp}`);
 
                 // Kinematics for String & Arrow
                 const r = Math.PI / 180;
@@ -918,8 +917,8 @@
                 const rhx = rex_t + (-50) * Math.cos((ra + rf) * r);
                 const rhy = rey_t + (-50) * Math.sin((ra + rf) * r);
 
-                // Bow String Anchor Points (Tips)
-                // Need to rotate (tipDisp, -130) and (tipDisp, 80) by bAng
+                // Bow String Anchor Points (Tips) - HORIZONTAL BOW
+                // Need to rotate (-130, tipDisp) and (80, tipDisp) by bAng
                 // Bow is attached to left hand, so its rotation is relative to the hand.
                 // The bow's rotation `bt` is applied to the bow group.
                 // The hand's rotation is `la + lf`.
@@ -930,15 +929,15 @@
                 const cosB = Math.cos(bAng);
                 const sinB = Math.sin(bAng);
 
-                // Top Tip (tx, ty) relative to torso origin
-                const t_lx = tipDisp; const t_ly = -130; // Bow local coordinates
+                // Left Tip (tx, ty) relative to torso origin
+                const t_lx = -130; const t_ly = tipDisp; // Bow local coordinates (HORIZONTAL)
                 const t_rx = t_lx * cosB - t_ly * sinB;
                 const t_ry = t_lx * sinB + t_ly * cosB;
                 const tx = lhx + t_rx;
                 const ty = lhy + t_ry;
 
-                // Bottom Tip (bx, by) relative to torso origin
-                const b_lx = tipDisp; const b_ly = 80; // Bow local coordinates
+                // Right Tip (bx, by) relative to torso origin
+                const b_lx = 80; const b_ly = tipDisp; // Bow local coordinates (HORIZONTAL)
                 const b_rx = b_lx * cosB - b_ly * sinB;
                 const b_ry = b_lx * sinB + b_ly * cosB;
                 const bx = lhx + b_rx;
