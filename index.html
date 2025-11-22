@@ -951,8 +951,8 @@
                     // Calculate angle from right hand to left hand and add 180 to point arrow toward bow
                     const arrowAngle = Math.atan2(lhy - rhy, lhx - rhx) * 180 / Math.PI + 180;
                     this.el.arrGrp.setAttribute('transform', `rotate(${arrowAngle})`);
-                    // Use fixed arrow length (90 pixels)
-                    const arrowLength = 90;
+                    // Arrow length should extend from right hand to left hand (bow)
+                    const arrowLength = Math.sqrt(Math.pow(lhx - rhx, 2) + Math.pow(lhy - rhy, 2));
                     this.el.arrLine.setAttribute('d', `M0,0 L${arrowLength},0`);
                 } else {
                     this.el.arrLine.style.display = 'none';
